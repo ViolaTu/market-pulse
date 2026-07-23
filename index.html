@@ -545,58 +545,46 @@
 <script type="module">
   // ============================================================================
   // Firebase Realtime Database 即時資料整合
-  // 監聽 /market-data 節點，資料一有變動就自動重新渲染：全球指數卡片（含折線圖）、
-  // 即時熱門股表格（含折線圖）、以及頁首日期／資料時間／涵蓋範圍與跑馬燈(ticker)。
+  // 監聽 /market-data 節點，資料一有變動就自動重新渲染：頁首日期／資料時間、
+  // 全球指數卡片（含折線圖）、即時熱門股表格（含折線圖）與跑馬燈(ticker)。
   //
-  // 預期的 /market-data 資料結構（可依此格式寫入 Firebase）：
+  // /market-data 資料結構（欄位皆為「根層級」，對應你已測試過的 curl 寫入格式）：
   // {
-  //   "meta": {
-  //     "date": "2026年7月23日（週四）",
-  //     "dataTime": "台北時間 21:00 台股收盤後快照",
-  //     "coverage": "美股 · 亞股 · 台股 · 大宗商品",
-  //     "globalTag": "美股 7/22 收盤 · 近25個交易日走勢",
-  //     "hotstockTag": "7/23 收盤 · 個股焦點"
-  //   },
-  //   "ticker": [
-  //     { "name": "TAIEX 加權指數", "value": "44,850.81", "change": "+25.03 (+0.06%)", "dir": "up" },
-  //     ...
+  //   "updatedAt": "21:00",
+  //   "dateText": "2026年07月23日（週四）",
+  //   "coverage": "美股 · 亞股 · 台股 · 大宗商品",              // 選填
+  //   "globalTag": "美股 7/22 收盤 · 近25個交易日走勢",          // 選填
+  //   "hotstockTag": "7/23 收盤 · 個股焦點",                    // 選填
+  //   "ticker": [                                              // 選填
+  //     { "name": "TAIEX 加權指數", "value": "44,850.81", "change": "+25.03 (+0.06%)", "isUp": true }
   //   ],
   //   "globalIndices": [
   //     {
-  //       "name": "S&P 500",
-  //       "value": "7,498.96",
-  //       "changeLabel": "▲ 0.10%（+10.24點）",
-  //       "dir": "up",
-  //       "trend": [7511.35, 7420.10, "... 近25個交易日收盤價 ...", 7498.96]
-  //     },
-  //     ...
+  //       "name": "S&P 500", "price": "7,498.96", "change": "+0.10%", "isUp": true,
+  //       "trend": [7511.35, 7420.10, "... 近25個交易日收盤價 ...", 7498.96]   // 選填，缺少時不畫折線圖
+  //     }
   //   ],
-  //   "hotStocks": [
+  //   "hotStocks": [                                            // 選填
   //     {
   //       "name": "緯創", "code": "3231", "note": "美國D1新廠題材",
-  //       "price": "173.50", "changeLabel": "▲5.79%", "dir": "up",
-  //       "volume": "217,640張",
-  //       "trend": [161.50, 162.50, "... 近25個交易日收盤價 ...", 173.50]
-  //     },
-  //     ...
+  //       "price": "173.50", "change": "▲5.79%", "isUp": true,
+  //       "volume": "217,640張", "trend": [161.50, "...", 173.50]
+  //     }
   //   ]
   // }
   //
-  // dir 欄位僅接受 "up" 或 "down"，會決定顏色（依台股慣例：漲=紅/var(--gain)，跌=綠/var(--loss)）
-  // 與箭頭符號。trend 為原始數值陣列，長度不限，前端會自動正規化畫成折線圖。
+  // isUp 為 true/false，決定顏色（依台股慣例：漲=紅/var(--gain)，跌=綠/var(--loss)）與箭頭符號。
+  // trend 為原始數值陣列，長度不限，前端會自動正規化畫成折線圖；沒提供就不畫圖，不會報錯。
+  // 除了 updatedAt / dateText / globalIndices 之外都是選填，缺少的欄位會顯示合理預設值，
+  // 不會一直卡在「載入中 / 讀取中」。
   // ============================================================================
 
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
   const firebaseConfig = {
-    apiKey: "AIzaSyD41ugE3MZvK4svFBWKSLUGzwblbnIb-bs",
-    authDomain: "household-app-e66a2.firebaseapp.com",
-    databaseURL: "https://household-app-e66a2-default-rtdb.firebaseio.com",
-    projectId: "household-app-e66a2",
-    storageBucket: "household-app-e66a2.firebasestorage.app",
-    messagingSenderId: "785516311532",
-    appId: "1:785516311532:web:27f04e257cbdc33f2e46c9"
+    databaseURL: "https://market-data-365c7-default-rtdb.firebaseio.com",
+    projectId: "market-data-365c7"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -638,31 +626,43 @@
       + `<circle cx="${spark.lastX}" cy="${spark.lastY}" r="2.2" fill="${color}"/></svg>`;
   }
 
-  // ---------- 各區塊渲染 ----------
-  function renderMeta(meta){
-    if(!meta) return;
+  function isUpFlag(item){
+    if(typeof item.isUp === 'boolean') return item.isUp;
+    if(item.dir === 'up') return true;
+    if(item.dir === 'down') return false;
+    return true;
+  }
+
+  // ---------- 各區塊渲染（欄位皆為根層級，資料一到就清除「載入中」字樣） ----------
+  function renderMeta(data){
     const dateEl = document.getElementById('metaDate');
     const timeEl = document.getElementById('metaTime');
     const coverageEl = document.getElementById('metaCoverage');
     const globalTagEl = document.getElementById('globalTag');
     const hotstockTagEl = document.getElementById('hotstockTag');
-    if(dateEl && meta.date) dateEl.textContent = meta.date;
-    if(timeEl && meta.dataTime) timeEl.textContent = meta.dataTime;
-    if(coverageEl && meta.coverage) coverageEl.textContent = meta.coverage;
-    if(globalTagEl && meta.globalTag) globalTagEl.textContent = meta.globalTag;
-    if(hotstockTagEl && meta.hotstockTag) hotstockTagEl.textContent = meta.hotstockTag;
+    if(dateEl) dateEl.textContent = data.dateText || '-';
+    if(timeEl) timeEl.textContent = data.dataTime || (data.updatedAt ? `台北時間 ${data.updatedAt} 台股收盤後快照` : '-');
+    if(coverageEl) coverageEl.textContent = data.coverage || '美股 · 亞股 · 台股 · 大宗商品';
+    if(globalTagEl) globalTagEl.textContent = data.globalTag || '即時資料';
+    if(hotstockTagEl) hotstockTagEl.textContent = data.hotstockTag || '即時資料';
   }
 
   function renderTicker(list){
     const track = document.getElementById('tickerTrack');
-    if(!track || !Array.isArray(list) || list.length===0) return;
+    if(!track) return;
+    if(!Array.isArray(list) || list.length===0){
+      track.innerHTML = '<span class="tick">尚無跑馬燈資料</span>';
+      return;
+    }
     let html = '';
     for(let r=0;r<2;r++){
       list.forEach(item=>{
-        const dir = item.dir;
-        const cls = dir==='up' ? 'up' : dir==='down' ? 'down' : '';
-        const arrow = dir==='up' ? '▲' : dir==='down' ? '▼' : '•';
-        html += `<span class="tick"><b>${escapeHTML(item.name)}</b><span class="num">${escapeHTML(item.value)}</span><span class="${cls}">${arrow} ${escapeHTML(item.change)}</span></span>`;
+        const up = isUpFlag(item);
+        const cls = up ? 'up' : 'down';
+        const arrow = up ? '▲' : '▼';
+        const value = item.value ?? item.price ?? '';
+        const change = item.change ?? '';
+        html += `<span class="tick"><b>${escapeHTML(item.name)}</b><span class="num">${escapeHTML(value)}</span><span class="${cls}">${arrow} ${escapeHTML(change)}</span></span>`;
       });
     }
     track.innerHTML = html;
@@ -670,13 +670,21 @@
 
   function renderGlobalIndices(list){
     const grid = document.getElementById('globalIdxGrid');
-    if(!grid || !Array.isArray(list) || list.length===0) return;
+    if(!grid) return;
+    if(!Array.isArray(list) || list.length===0){
+      grid.innerHTML = '<div class="idx-card"><div class="name">目前尚無指數資料</div></div>';
+      return;
+    }
     grid.innerHTML = list.map(idx=>{
-      const dirClass = idx.dir==='down' ? 'down' : 'up';
+      const up = isUpFlag(idx);
+      const dirClass = up ? 'up' : 'down';
+      const arrow = up ? '▲' : '▼';
+      const price = idx.price ?? idx.value ?? '-';
+      const change = idx.change ?? idx.changeLabel ?? '';
       return `<div class="idx-card">`
         + `<div class="name">${escapeHTML(idx.name)}</div>`
-        + `<div class="value">${escapeHTML(idx.value)}</div>`
-        + `<div class="chg ${dirClass}">${escapeHTML(idx.changeLabel)}</div>`
+        + `<div class="value">${escapeHTML(price)}</div>`
+        + `<div class="chg ${dirClass}">${change ? arrow + ' ' + escapeHTML(change) : ''}</div>`
         + sparkSVG(idx.trend, dirClass, 'idx-spark')
         + `</div>`;
     }).join('');
@@ -684,14 +692,21 @@
 
   function renderHotStocks(list){
     const rows = document.getElementById('hotstockRows');
-    if(!rows || !Array.isArray(list) || list.length===0) return;
+    if(!rows) return;
+    if(!Array.isArray(list) || list.length===0){
+      rows.innerHTML = '<div class="hotstock-row"><div class="name">目前尚無熱門股資料</div></div>';
+      return;
+    }
     rows.innerHTML = list.map(s=>{
-      const dirClass = s.dir==='down' ? 'down' : 'up';
+      const up = isUpFlag(s);
+      const dirClass = up ? 'up' : 'down';
       const codeNote = [s.code, s.note].filter(Boolean).map(escapeHTML).join('・');
+      const price = s.price ?? '-';
+      const change = s.change ?? s.changeLabel ?? '';
       return `<div class="hotstock-row">`
         + `<div class="name">${escapeHTML(s.name)}<span>${codeNote}</span></div>`
-        + `<div class="price">${escapeHTML(s.price)}</div>`
-        + `<div class="chg ${dirClass}">${escapeHTML(s.changeLabel)}</div>`
+        + `<div class="price">${escapeHTML(price)}</div>`
+        + `<div class="chg ${dirClass}">${escapeHTML(change)}</div>`
         + `<div class="vol">${escapeHTML(s.volume ?? '-')}</div>`
         + sparkSVG(s.trend, dirClass, 'spark')
         + `</div>`;
@@ -700,7 +715,7 @@
 
   function render(data){
     if(!data) return;
-    renderMeta(data.meta);
+    renderMeta(data);
     renderTicker(data.ticker);
     renderGlobalIndices(data.globalIndices);
     renderHotStocks(data.hotStocks);
