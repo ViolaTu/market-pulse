@@ -301,9 +301,9 @@
     <div class="eyebrow">每日金融快報 · Daily Market Wire</div>
     <h1>市場脈動<br><em>Market Pulse</em></h1>
     <div class="masthead-meta">
-      <span>日期 <b>2026年7月23日（週四）</b></span>
-      <span>資料時間 <b>台北時間 21:00 台股收盤後快照</b></span>
-      <span>涵蓋 <b>美股 · 亞股 · 台股 · 大宗商品</b></span>
+      <span>日期 <b id="metaDate">載入中…</b></span>
+      <span>資料時間 <b id="metaTime">載入中…</b></span>
+      <span>涵蓋 <b id="metaCoverage">美股 · 亞股 · 台股 · 大宗商品</b></span>
     </div>
   </div>
 
@@ -312,35 +312,12 @@
     <section id="global">
       <div class="section-head">
         <h2>全球指數</h2>
-        <span class="tag">美股 7/22 收盤 · 近25個交易日走勢</span>
+        <span class="tag" id="globalTag">即時讀取中…</span>
       </div>
-      <div class="idx-grid">
-        <div class="idx-card">
-          <div class="name">S&amp;P 500</div>
-          <div class="value">7,498.96</div>
-          <div class="chg up">▲ 0.10%（+10.24點）</div>
-          <svg class="idx-spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,12.1 4.17,23.64 8.33,13.46 12.5,16.98 16.67,30.55 20.83,31.47 25,31.56 29.17,32 33.33,21.07 37.5,13.62 41.67,15.66 45.83,15.66 50,8.8 54.17,13.05 58.33,15.72 62.5,8.02 66.67,4 70.83,11.6 75,8.02 79.17,4.38 83.33,9.26 87.5,18.89 91.67,20.71 95.83,12.37 100,13.67" fill="none" stroke="var(--gain)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="13.67" r="2.2" fill="var(--gain)"/></svg>
-        </div>
-        <div class="idx-card">
-          <div class="name">道瓊工業指數</div>
-          <div class="value">52,218.58</div>
-          <div class="chg down">▼ 0.01%</div>
-          <svg class="idx-spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,22.92 4.17,32 8.33,30.71 12.5,28.06 16.67,28.88 20.83,25.62 25,24.33 29.17,25.13 33.33,19.64 37.5,17.2 41.67,17.45 45.83,6.79 50,4 54.17,6.34 58.33,16.67 62.5,14.18 66.67,11.5 70.83,13.98 75,13.81 79.17,11.11 83.33,13.01 87.5,20.29 91.67,25.79 95.83,18.89 100,19" fill="none" stroke="var(--loss)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="19" r="2.2" fill="var(--loss)"/></svg>
-        </div>
-        <div class="idx-card">
-          <div class="name">那斯達克指數</div>
-          <div class="value">25,690.90</div>
-          <div class="chg down">▼ 0.57%</div>
-          <svg class="idx-spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,7.25 4.17,15.39 8.33,4 12.5,12.06 16.67,25.36 20.83,27.89 25,30.6 29.17,32 33.33,20.01 37.5,10.98 41.67,14.97 45.83,19.72 50,13.1 54.17,20.04 58.33,18.85 62.5,11.14 66.67,9.42 70.83,18.79 75,13.43 79.17,9.71 83.33,18.59 87.5,26.89 91.67,27.17 95.83,19.62 100,22.98" fill="none" stroke="var(--loss)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="22.98" r="2.2" fill="var(--loss)"/></svg>
-        </div>
-        <div class="idx-card">
-          <div class="name">費城半導體指數 (SOX)</div>
-          <div class="value">12,410.67</div>
-          <div class="chg up">▲ 0.44%（7/21單日大漲5.21%後持續走高）</div>
-          <svg class="idx-spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,16.68 4.17,14.95 8.33,6.77 12.5,4 16.67,14.9 20.83,15.12 25,10.56 29.17,17.54 33.33,12.75 37.5,7.67 41.67,16.12 45.83,23 50,20.4 54.17,26.08 58.33,23.48 62.5,19.84 66.67,19.77 70.83,25.63 75,22.66 79.17,25.14 83.33,30.17 87.5,32 91.67,31.34 95.83,25.55 100,25.03" fill="none" stroke="var(--gain)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="25.03" r="2.2" fill="var(--gain)"/></svg>
-        </div>
+      <div class="idx-grid" id="globalIdxGrid">
+        <div class="idx-card"><div class="name">正在從 Firebase 讀取指數資料…</div></div>
       </div>
-      <div class="idx-note">趨勢線取自 <a class="src-link" href="https://finance.yahoo.com/quote/%5EGSPC/history/" target="_blank" rel="noopener">Yahoo Finance 歷史股價資料</a>（S&amp;P 500、道瓊、那斯達克、SOX 各取近25個交易日收盤價繪製），終點對齊上方7/22收盤數字；縱軸僅反映區間內相對高低，非固定刻度。</div>
+      <div class="idx-note">趨勢線與數值即時讀取自 Firebase Realtime Database（<code>/market-data/globalIndices</code>）；縱軸僅反映區間內相對高低，非固定刻度。</div>
 
       <div class="movers-row">
         <div class="movers-card">
@@ -391,49 +368,17 @@
     <section id="hotstocks">
       <div class="section-head">
         <h2>即時熱門股動態</h2>
-        <span class="tag">7/23 收盤 · 個股焦點</span>
+        <span class="tag" id="hotstockTag">即時讀取中…</span>
       </div>
       <div class="hotstock-table">
         <div class="hotstock-row head">
           <div>股票</div><div>成交價</div><div>漲跌%</div><div>成交量</div><div>趨勢（近25交易日）</div>
         </div>
-        <div class="hotstock-row">
-          <div class="name">緯創<span>3231・美國D1新廠題材</span></div>
-          <div class="price">173.50</div>
-          <div class="chg up">▲5.79%</div>
-          <div class="vol">217,640張</div>
-          <svg class="spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,13.74 4.17,12.93 8.33,16.17 12.5,16.99 16.67,14.96 20.83,20.64 25,19.42 29.17,16.17 33.33,15.36 37.5,16.17 41.67,15.77 45.83,16.58 50,18.61 54.17,25.91 58.33,27.54 62.5,27.54 66.67,28.35 70.83,29.16 75,26.72 79.17,25.91 83.33,32 87.5,28.35 91.67,23.48 95.83,11.71 100,4" fill="none" stroke="var(--gain)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="4" r="2.2" fill="var(--gain)"/></svg>
-        </div>
-        <div class="hotstock-row">
-          <div class="name">台積電<span>2330・尾盤翻紅</span></div>
-          <div class="price">2,405.00</div>
-          <div class="chg up">▲0.21%</div>
-          <div class="vol">25,264張</div>
-          <svg class="spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,16.73 4.17,4 8.33,6.55 12.5,19.27 16.67,19.27 20.83,25.64 25,21.82 29.17,16.73 33.33,4.64 37.5,9.73 41.67,12.27 45.83,10.36 50,12.91 54.17,9.73 58.33,16.09 62.5,16.09 66.67,12.91 70.83,15.45 75,12.91 79.17,9.09 83.33,32 87.5,28.18 91.67,16.73 95.83,18 100,17.36" fill="none" stroke="var(--gain)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="17.36" r="2.2" fill="var(--gain)"/></svg>
-        </div>
-        <div class="hotstock-row">
-          <div class="name">中鋼<span>2002・外資買超居次</span></div>
-          <div class="price">19.10</div>
-          <div class="chg up">▲1.33%</div>
-          <div class="vol">88,994張</div>
-          <svg class="spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,14.18 4.17,4 8.33,11.64 12.5,7.82 16.67,15.45 20.83,16.73 25,15.45 29.17,21.82 33.33,25.64 37.5,26.91 41.67,18 45.83,16.73 50,26.91 54.17,24.36 58.33,28.18 62.5,28.18 66.67,32 70.83,29.45 75,25.64 79.17,21.82 83.33,25.64 87.5,28.18 91.67,21.82 95.83,20.55 100,14.18" fill="none" stroke="var(--gain)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="14.18" r="2.2" fill="var(--gain)"/></svg>
-        </div>
-        <div class="hotstock-row">
-          <div class="name">彰銀<span>2801・外資賣超冠軍</span></div>
-          <div class="price">24.25</div>
-          <div class="chg down">▼1.62%</div>
-          <div class="vol">37,882張</div>
-          <svg class="spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,32 4.17,32 8.33,26.56 12.5,31.22 16.67,21.89 20.83,23.44 25,21.11 29.17,14.11 33.33,16.44 37.5,24.22 41.67,25 45.83,21.89 50,21.89 54.17,15.67 58.33,13.33 62.5,13.33 66.67,16.44 70.83,20.33 75,18 79.17,14.89 83.33,15.67 87.5,16.44 91.67,9.44 95.83,4 100,10.22" fill="none" stroke="var(--loss)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="10.22" r="2.2" fill="var(--loss)"/></svg>
-        </div>
-        <div class="hotstock-row">
-          <div class="name">臺企銀<span>2834・外資賣超居次</span></div>
-          <div class="price">17.90</div>
-          <div class="chg down">▼1.10%</div>
-          <div class="vol">30,795張</div>
-          <svg class="spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,30.25 4.17,32 8.33,25 12.5,19.75 16.67,12.75 20.83,21.5 25,19.75 29.17,21.5 33.33,26.75 37.5,21.5 41.67,14.5 45.83,12.75 50,9.25 54.17,4 58.33,14.5 62.5,14.5 66.67,21.5 70.83,25 75,18 79.17,7.5 83.33,11 87.5,12.75 91.67,12.75 95.83,9.25 100,16.25" fill="none" stroke="var(--loss)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="16.25" r="2.2" fill="var(--loss)"/></svg>
+        <div id="hotstockRows">
+          <div class="hotstock-row"><div class="name">正在從 Firebase 讀取熱門股資料…</div></div>
         </div>
       </div>
-      <div class="hotstock-note">上表為今日籌碼與新聞面焦點個股（<a class="src-link" href="https://finance.ettoday.net/news/3206153" target="_blank" rel="noopener">外資買賣超前二大個股與賣超冠亞軍</a>、<a class="src-link" href="https://udn.com/news/story/7251/9646292" target="_blank" rel="noopener">台積電收盤資訊</a>），非交易所「熱門排行」即時榜單。成交價、漲跌%與成交量已依 <a class="src-link" href="https://finance.yahoo.com/quote/2330.TW/history/" target="_blank" rel="noopener">Yahoo Finance 個股歷史股價資料</a>重新交叉查證並修正（原「彰銀」「臺企銀」價格與漲跌方向有誤，現已更正為7/23實際收盤下跌）；趨勢線改以近25個交易日實際收盤價繪製（非逐筆走勢圖，盤中即時走勢圖需即時tick資料，本頁為盤後彙整無法提供）。僅供參考，不構成投資建議。</div>
+      <div class="hotstock-note">上表個股組成、成交價、漲跌%、成交量與趨勢線皆即時讀取自 Firebase Realtime Database（<code>/market-data/hotStocks</code>），非交易所「熱門排行」即時榜單（非逐筆走勢圖，盤中即時走勢圖需即時tick資料，本頁為彙整近25個交易日收盤資料）。僅供參考，不構成投資建議。</div>
     </section>
 
     <section id="commodities">
@@ -597,33 +542,184 @@
     </div>
   </footer>
 
-<script>
-  // Build ticker content from the same figures shown above, duplicated once for seamless loop
-  const items = [
-    ['TAIEX 加權指數','44,850.81','+25.03 (+0.06%)',true],
-    ['S&P 500','7,498.96','+0.10%',true],
-    ['NASDAQ','25,690.90','-0.57%',false],
-    ['DOW JONES','52,218.58','-0.01%',false],
-    ['SOX 費城半導體','12,410.67','+0.44%',true],
-    ['KOSPI','7,096.89','+4.40%',true],
-    ['NIKKEI 225','66,422.60','+0.46%',true],
-    ['GOLD','$4,103','-0.6%',false],
-    ['BRENT CRUDE','$98.44','+4.6%',true],
-    ['WTI CRUDE','$90.14','+3.8%',true],
-    ['台積電 2330','$2,405','+5 (尾盤翻紅)',true],
-  ];
-  function buildTicker(){
+<script type="module">
+  // ============================================================================
+  // Firebase Realtime Database 即時資料整合
+  // 監聽 /market-data 節點，資料一有變動就自動重新渲染：全球指數卡片（含折線圖）、
+  // 即時熱門股表格（含折線圖）、以及頁首日期／資料時間／涵蓋範圍與跑馬燈(ticker)。
+  //
+  // 預期的 /market-data 資料結構（可依此格式寫入 Firebase）：
+  // {
+  //   "meta": {
+  //     "date": "2026年7月23日（週四）",
+  //     "dataTime": "台北時間 21:00 台股收盤後快照",
+  //     "coverage": "美股 · 亞股 · 台股 · 大宗商品",
+  //     "globalTag": "美股 7/22 收盤 · 近25個交易日走勢",
+  //     "hotstockTag": "7/23 收盤 · 個股焦點"
+  //   },
+  //   "ticker": [
+  //     { "name": "TAIEX 加權指數", "value": "44,850.81", "change": "+25.03 (+0.06%)", "dir": "up" },
+  //     ...
+  //   ],
+  //   "globalIndices": [
+  //     {
+  //       "name": "S&P 500",
+  //       "value": "7,498.96",
+  //       "changeLabel": "▲ 0.10%（+10.24點）",
+  //       "dir": "up",
+  //       "trend": [7511.35, 7420.10, "... 近25個交易日收盤價 ...", 7498.96]
+  //     },
+  //     ...
+  //   ],
+  //   "hotStocks": [
+  //     {
+  //       "name": "緯創", "code": "3231", "note": "美國D1新廠題材",
+  //       "price": "173.50", "changeLabel": "▲5.79%", "dir": "up",
+  //       "volume": "217,640張",
+  //       "trend": [161.50, 162.50, "... 近25個交易日收盤價 ...", 173.50]
+  //     },
+  //     ...
+  //   ]
+  // }
+  //
+  // dir 欄位僅接受 "up" 或 "down"，會決定顏色（依台股慣例：漲=紅/var(--gain)，跌=綠/var(--loss)）
+  // 與箭頭符號。trend 為原始數值陣列，長度不限，前端會自動正規化畫成折線圖。
+  // ============================================================================
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD41ugE3MZvK4svFBWKSLUGzwblbnIb-bs",
+    authDomain: "household-app-e66a2.firebaseapp.com",
+    databaseURL: "https://household-app-e66a2-default-rtdb.firebaseio.com",
+    projectId: "household-app-e66a2",
+    storageBucket: "household-app-e66a2.firebasestorage.app",
+    messagingSenderId: "785516311532",
+    appId: "1:785516311532:web:27f04e257cbdc33f2e46c9"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // ---------- 小工具 ----------
+  function escapeHTML(str){
+    if(str===undefined || str===null) return '';
+    return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function round2(n){ return Math.round(n*100)/100; }
+
+  // 將任意長度的數值陣列正規化為 viewBox="0 0 100 36" 的折線圖座標
+  function buildSparkline(values){
+    if(!Array.isArray(values) || values.length===0) return null;
+    const nums = values.map(Number).filter(v=>!Number.isNaN(v));
+    if(nums.length===0) return null;
+    const n = nums.length;
+    const min = Math.min(...nums);
+    const max = Math.max(...nums);
+    const range = max-min;
+    const pts = nums.map((v,i)=>{
+      const x = n===1 ? 0 : round2(i*100/(n-1));
+      const y = range===0 ? 18 : round2(4 + (max-v)/range*28);
+      return `${x},${y}`;
+    });
+    const [lastX,lastY] = pts[pts.length-1].split(',');
+    return { pointsAttr: pts.join(' '), lastX, lastY };
+  }
+
+  function sparkSVG(values, dirClass, sizeClass){
+    const spark = buildSparkline(values);
+    const color = dirClass==='down' ? 'var(--loss)' : 'var(--gain)';
+    if(!spark){
+      return `<svg class="${sizeClass}" viewBox="0 0 100 36" preserveAspectRatio="none"></svg>`;
+    }
+    return `<svg class="${sizeClass}" viewBox="0 0 100 36" preserveAspectRatio="none">`
+      + `<polyline points="${spark.pointsAttr}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>`
+      + `<circle cx="${spark.lastX}" cy="${spark.lastY}" r="2.2" fill="${color}"/></svg>`;
+  }
+
+  // ---------- 各區塊渲染 ----------
+  function renderMeta(meta){
+    if(!meta) return;
+    const dateEl = document.getElementById('metaDate');
+    const timeEl = document.getElementById('metaTime');
+    const coverageEl = document.getElementById('metaCoverage');
+    const globalTagEl = document.getElementById('globalTag');
+    const hotstockTagEl = document.getElementById('hotstockTag');
+    if(dateEl && meta.date) dateEl.textContent = meta.date;
+    if(timeEl && meta.dataTime) timeEl.textContent = meta.dataTime;
+    if(coverageEl && meta.coverage) coverageEl.textContent = meta.coverage;
+    if(globalTagEl && meta.globalTag) globalTagEl.textContent = meta.globalTag;
+    if(hotstockTagEl && meta.hotstockTag) hotstockTagEl.textContent = meta.hotstockTag;
+  }
+
+  function renderTicker(list){
+    const track = document.getElementById('tickerTrack');
+    if(!track || !Array.isArray(list) || list.length===0) return;
     let html = '';
     for(let r=0;r<2;r++){
-      items.forEach(([name,val,chg,dir])=>{
-        const cls = dir===true?'up':dir===false?'down':'';
-        const arrow = dir===true?'▲':dir===false?'▼':'•';
-        html += `<span class="tick"><b>${name}</b><span class="num">${val}</span><span class="${cls}">${arrow} ${chg}</span></span>`;
+      list.forEach(item=>{
+        const dir = item.dir;
+        const cls = dir==='up' ? 'up' : dir==='down' ? 'down' : '';
+        const arrow = dir==='up' ? '▲' : dir==='down' ? '▼' : '•';
+        html += `<span class="tick"><b>${escapeHTML(item.name)}</b><span class="num">${escapeHTML(item.value)}</span><span class="${cls}">${arrow} ${escapeHTML(item.change)}</span></span>`;
       });
     }
-    document.getElementById('tickerTrack').innerHTML = html;
+    track.innerHTML = html;
   }
-  buildTicker();
+
+  function renderGlobalIndices(list){
+    const grid = document.getElementById('globalIdxGrid');
+    if(!grid || !Array.isArray(list) || list.length===0) return;
+    grid.innerHTML = list.map(idx=>{
+      const dirClass = idx.dir==='down' ? 'down' : 'up';
+      return `<div class="idx-card">`
+        + `<div class="name">${escapeHTML(idx.name)}</div>`
+        + `<div class="value">${escapeHTML(idx.value)}</div>`
+        + `<div class="chg ${dirClass}">${escapeHTML(idx.changeLabel)}</div>`
+        + sparkSVG(idx.trend, dirClass, 'idx-spark')
+        + `</div>`;
+    }).join('');
+  }
+
+  function renderHotStocks(list){
+    const rows = document.getElementById('hotstockRows');
+    if(!rows || !Array.isArray(list) || list.length===0) return;
+    rows.innerHTML = list.map(s=>{
+      const dirClass = s.dir==='down' ? 'down' : 'up';
+      const codeNote = [s.code, s.note].filter(Boolean).map(escapeHTML).join('・');
+      return `<div class="hotstock-row">`
+        + `<div class="name">${escapeHTML(s.name)}<span>${codeNote}</span></div>`
+        + `<div class="price">${escapeHTML(s.price)}</div>`
+        + `<div class="chg ${dirClass}">${escapeHTML(s.changeLabel)}</div>`
+        + `<div class="vol">${escapeHTML(s.volume ?? '-')}</div>`
+        + sparkSVG(s.trend, dirClass, 'spark')
+        + `</div>`;
+    }).join('');
+  }
+
+  function render(data){
+    if(!data) return;
+    renderMeta(data.meta);
+    renderTicker(data.ticker);
+    renderGlobalIndices(data.globalIndices);
+    renderHotStocks(data.hotStocks);
+  }
+
+  // ---------- 監聽 Firebase Realtime Database ----------
+  const marketDataRef = ref(db, 'market-data');
+  onValue(marketDataRef, (snapshot)=>{
+    const data = snapshot.val();
+    if(!data){
+      console.warn('Firebase /market-data 目前沒有資料。');
+      return;
+    }
+    render(data);
+  }, (error)=>{
+    console.error('Firebase onValue 讀取失敗：', error);
+    const dateEl = document.getElementById('metaDate');
+    if(dateEl) dateEl.textContent = '資料讀取失敗';
+  });
 </script>
 
 </body>
