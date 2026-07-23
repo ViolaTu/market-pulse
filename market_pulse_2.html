@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>市場脈動 · 每日金融快報</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12141c;
+    --ink-2:#1b1f2c;
+    --ink-3:#242a3a;
+    --hairline:#333a4d;
+    --paper:#ede8db;
+    --paper-dim:#a9a396;
+    --gain:#c1503e;
+    --gain-soft:rgba(193,80,62,.14);
+    --loss:#5c9a7a;
+    --loss-soft:rgba(92,154,122,.14);
+    --gold:#c9a12f;
+    --gold-soft:rgba(201,161,47,.14);
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'IBM Plex Sans',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .num{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;}
+
+  /* ---------- Ticker ---------- */
+  .ticker-outer{
+    background:var(--ink-3);
+    border-bottom:1px solid var(--hairline);
+    overflow:hidden;
+    white-space:nowrap;
+    padding:9px 0;
+  }
+  .ticker-track{
+    display:inline-flex;
+    animation:scrollTicker 42s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .ticker-track{animation:none;}
+    .ticker-outer{overflow-x:auto;}
+  }
+  @keyframes scrollTicker{
+    0%{transform:translateX(0);}
+    100%{transform:translateX(-50%);}
+  }
+  .tick{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:0 22px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    letter-spacing:.02em;
+    border-right:1px solid var(--hairline);
+  }
+  .tick b{font-weight:600;color:var(--paper);}
+  .tick .up{color:var(--gain);}
+  .tick .down{color:var(--loss);}
+
+  /* ---------- Masthead ---------- */
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+  .masthead{padding:46px 28px 30px;max-width:1180px;margin:0 auto;border-bottom:1px solid var(--hairline);}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:14px;display:flex;gap:10px;align-items:center;
+  }
+  .eyebrow::before{content:"●";font-size:8px;}
+  .masthead h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(38px,6vw,64px);
+    line-height:1.02;
+    margin:0 0 14px;
+    letter-spacing:-.01em;
+  }
+  .masthead h1 em{font-style:italic;font-weight:400;color:var(--paper-dim);}
+  .masthead-meta{
+    display:flex;flex-wrap:wrap;gap:24px;
+    font-size:13.5px;color:var(--paper-dim);
+    font-family:'IBM Plex Mono',monospace;
+    margin-top:18px;
+  }
+  .masthead-meta span b{color:var(--paper);font-weight:600;}
+
+  section{padding:44px 0;}
+  .section-head{
+    display:flex;align-items:baseline;justify-content:space-between;
+    margin-bottom:22px;flex-wrap:wrap;gap:8px;
+  }
+  .section-head h2{
+    font-family:'Fraunces',serif;font-weight:600;font-size:26px;margin:0;
+  }
+  .section-head .tag{
+    font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--paper-dim);
+    text-transform:uppercase;letter-spacing:.1em;
+  }
+
+  /* ---------- Index cards ---------- */
+  .idx-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .idx-card{
+    background:var(--ink-2);border:1px solid var(--hairline);border-radius:var(--radius);
+    padding:20px 22px;
+  }
+  .idx-card .name{font-size:13px;color:var(--paper-dim);margin-bottom:10px;}
+  .idx-card .value{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:600;}
+  .idx-card .chg{font-family:'IBM Plex Mono',monospace;font-size:14px;margin-top:4px;}
+  .idx-card .chg.up{color:var(--gain);} .idx-card .chg.down{color:var(--loss);}
+  .bar-track{height:5px;background:var(--ink-3);border-radius:3px;margin-top:14px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:3px;}
+  .bar-fill.up{background:var(--gain);} .bar-fill.down{background:var(--loss);}
+  .idx-spark{width:100%;height:38px;display:block;margin-top:14px;}
+  .idx-note{font-size:12px;color:var(--paper-dim);line-height:1.7;margin-top:14px;}
+
+  .movers-row{display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;}
+  .movers-card{
+    flex:1;min-width:230px;
+    background:var(--ink-2);border:1px solid var(--hairline);border-radius:var(--radius);
+    padding:18px 20px;
+  }
+  .movers-card h4{
+    font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--paper-dim);margin:0 0 12px;
+  }
+  .movers-card .row{display:flex;justify-content:space-between;font-size:14px;padding:6px 0;border-top:1px solid var(--hairline);}
+  .movers-card .row:first-of-type{border-top:none;}
+  .movers-card .row span:last-child{font-family:'IBM Plex Mono',monospace;}
+
+  /* ---------- Taiwan hero number ---------- */
+  .tw-block{
+    display:grid;grid-template-columns:1.1fr 1fr;gap:28px;
+    background:var(--ink-2);border:1px solid var(--hairline);border-radius:var(--radius);
+    padding:32px;
+  }
+  .tw-left .name{font-size:13px;color:var(--paper-dim);margin-bottom:6px;}
+  .tw-bignum{
+    font-family:'IBM Plex Mono',monospace;font-weight:700;
+    font-size:clamp(44px,6vw,72px);color:var(--gain);line-height:1;
+    letter-spacing:-.01em;
+  }
+  .tw-sub{font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--gain);margin-top:8px;}
+  .tw-desc{font-size:14.5px;line-height:1.7;color:var(--paper-dim);margin-top:18px;}
+  .tw-desc b{color:var(--paper);font-weight:600;}
+  .tw-facts{display:flex;flex-direction:column;gap:14px;justify-content:center;}
+  .tw-fact{
+    display:flex;justify-content:space-between;align-items:center;
+    border-bottom:1px solid var(--hairline);padding-bottom:12px;
+  }
+  .tw-fact:last-child{border-bottom:none;}
+  .tw-fact .lbl{font-size:13.5px;color:var(--paper-dim);}
+  .tw-fact .val{font-family:'IBM Plex Mono',monospace;font-size:15px;}
+
+  .asia-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px;}
+  .asia-chip{
+    background:var(--ink-2);border:1px solid var(--hairline);border-radius:var(--radius);
+    padding:16px 18px;
+  }
+  .asia-chip .n{font-size:12.5px;color:var(--paper-dim);}
+  .asia-chip .v{font-family:'IBM Plex Mono',monospace;font-size:19px;margin-top:6px;}
+
+  /* ---------- Hot stocks ---------- */
+  .hotstock-table{
+    background:var(--ink-2);border:1px solid var(--hairline);border-radius:var(--radius);
+    overflow:hidden;
+  }
+  .hotstock-row{
+    display:grid;grid-template-columns:1.6fr .9fr .9fr 1fr 1.1fr;
+    gap:14px;align-items:center;
+    padding:14px 22px;border-bottom:1px solid var(--hairline);
+  }
+  .hotstock-row:last-child{border-bottom:none;}
+  .hotstock-row.head{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--paper-dim);padding:12px 22px;
+    background:var(--ink-3);
+  }
+  .hotstock-row .name{font-size:14.5px;font-weight:600;}
+  .hotstock-row .name span{
+    display:block;font-family:'IBM Plex Mono',monospace;font-weight:400;
+    font-size:11.5px;color:var(--paper-dim);margin-top:2px;
+  }
+  .hotstock-row .price{font-family:'IBM Plex Mono',monospace;font-size:15px;}
+  .hotstock-row .chg{font-family:'IBM Plex Mono',monospace;font-size:14px;}
+  .hotstock-row .chg.up{color:var(--gain);} .hotstock-row .chg.down{color:var(--loss);}
+  .hotstock-row .vol{font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:var(--paper-dim);}
+  .hotstock-row .spark{width:100px;height:34px;display:block;}
+  .hotstock-note{
+    font-size:12px;color:var(--paper-dim);line-height:1.7;margin-top:14px;
+  }
+  @media (max-width:860px){
+    .hotstock-row{grid-template-columns:1.3fr .8fr .8fr;}
+    .hotstock-row .vol, .hotstock-row .spark{display:none;}
+  }
+
+  /* ---------- Commodities ---------- */
+  .commod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .commod-card{
+    background:var(--ink-2);border:1px solid var(--hairline);border-radius:var(--radius);
+    padding:20px 22px;
+  }
+  .commod-card .n{font-size:13px;color:var(--paper-dim);}
+  .commod-card .v{font-family:'IBM Plex Mono',monospace;font-size:24px;margin-top:8px;font-weight:600;}
+  .commod-card .c{font-family:'IBM Plex Mono',monospace;font-size:13.5px;margin-top:4px;}
+  .commod-card .c.up{color:var(--gain);} .commod-card .c.down{color:var(--loss);}
+  .commod-card p{font-size:13px;color:var(--paper-dim);line-height:1.6;margin:12px 0 0;}
+
+  /* ---------- Focus stories ---------- */
+  .story-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+  .story-card{
+    background:var(--ink-2);border:1px solid var(--hairline);border-radius:var(--radius);
+    padding:26px 26px 24px;position:relative;
+  }
+  .story-card .idx{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--gold);
+    letter-spacing:.08em;margin-bottom:12px;display:block;
+  }
+  .story-card h3{
+    font-family:'Fraunces',serif;font-weight:600;font-size:21px;margin:0 0 10px;line-height:1.25;
+  }
+  .story-card p{font-size:14px;line-height:1.75;color:var(--paper-dim);margin:0;}
+  .story-card .kicker{
+    display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;
+    padding:3px 9px;border-radius:20px;margin-top:16px;letter-spacing:.03em;
+  }
+  .kicker.gold{background:var(--gold-soft);color:var(--gold);}
+  .kicker.up{background:var(--gain-soft);color:var(--gain);}
+  .kicker.down{background:var(--loss-soft);color:var(--loss);}
+
+  footer{
+    border-top:1px solid var(--hairline);padding:30px 0 50px;
+    font-size:12.5px;color:var(--paper-dim);line-height:1.8;
+  }
+  footer b{color:var(--paper);}
+  footer .sources{margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+
+  /* ---------- Watchlist ---------- */
+  .watch-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+  .watch-card{
+    background:var(--ink-2);border:1px solid var(--hairline);border-radius:var(--radius);
+    padding:18px 20px;display:flex;gap:14px;align-items:flex-start;
+  }
+  .watch-tag{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink);
+    background:var(--gold);border-radius:5px;padding:3px 7px;flex:none;font-weight:600;
+    white-space:nowrap;
+  }
+  .watch-body h4{margin:0 0 4px;font-size:15px;font-weight:600;}
+  .watch-body p{margin:0;font-size:13px;line-height:1.6;color:var(--paper-dim);}
+  .src-link{color:var(--paper);text-decoration:underline;text-decoration-color:var(--gold);text-underline-offset:2px;}
+  .src-link:hover{color:var(--gold);}
+  .disclaimer{
+    margin-top:16px;font-size:12px;color:var(--paper-dim);line-height:1.7;
+    border-left:2px solid var(--gold);padding-left:12px;
+  }
+  .watch-subhead{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--paper-dim);
+    margin:26px 0 12px;padding-top:22px;border-top:1px solid var(--hairline);
+  }
+  .watch-subhead b{color:var(--gold);}
+
+  /* ---------- Automation notice ---------- */
+  .auto-note{
+    background:var(--ink-2);border:1px dashed var(--hairline);border-radius:var(--radius);
+    padding:20px 22px;font-size:13.5px;line-height:1.8;color:var(--paper-dim);
+  }
+  .auto-note b{color:var(--paper);}
+  .auto-note .step{
+    display:flex;gap:10px;margin-top:10px;font-size:13px;
+  }
+  .auto-note .step .n{
+    font-family:'IBM Plex Mono',monospace;color:var(--gold);flex:none;
+  }
+
+  @media (max-width:860px){
+    .idx-grid{grid-template-columns:1fr;}
+    .commod-grid{grid-template-columns:1fr;}
+    .story-grid{grid-template-columns:1fr;}
+    .tw-block{grid-template-columns:1fr;}
+    .asia-strip{grid-template-columns:repeat(2,1fr);}
+    .masthead{padding:36px 20px 24px;}
+    .wrap{padding:0 20px;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="ticker-outer">
+    <div class="ticker-track" id="tickerTrack"></div>
+  </div>
+
+  <div class="masthead">
+    <div class="eyebrow">每日金融快報 · Daily Market Wire</div>
+    <h1>市場脈動<br><em>Market Pulse</em></h1>
+    <div class="masthead-meta">
+      <span>日期 <b>2026年7月23日（週四）</b></span>
+      <span>資料時間 <b>台北時間 21:00 台股收盤後快照</b></span>
+      <span>涵蓋 <b>美股 · 亞股 · 台股 · 大宗商品</b></span>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <section id="global">
+      <div class="section-head">
+        <h2>全球指數</h2>
+        <span class="tag">美股 7/22 收盤 · 近25個交易日走勢</span>
+      </div>
+      <div class="idx-grid">
+        <div class="idx-card">
+          <div class="name">S&amp;P 500</div>
+          <div class="value">7,498.96</div>
+          <div class="chg up">▲ 0.10%（+10.24點）</div>
+          <svg class="idx-spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,12.1 4.17,23.64 8.33,13.46 12.5,16.98 16.67,30.55 20.83,31.47 25,31.56 29.17,32 33.33,21.07 37.5,13.62 41.67,15.66 45.83,15.66 50,8.8 54.17,13.05 58.33,15.72 62.5,8.02 66.67,4 70.83,11.6 75,8.02 79.17,4.38 83.33,9.26 87.5,18.89 91.67,20.71 95.83,12.37 100,13.67" fill="none" stroke="var(--gain)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="13.67" r="2.2" fill="var(--gain)"/></svg>
+        </div>
+        <div class="idx-card">
+          <div class="name">道瓊工業指數</div>
+          <div class="value">52,218.58</div>
+          <div class="chg down">▼ 0.01%</div>
+          <svg class="idx-spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,22.92 4.17,32 8.33,30.71 12.5,28.06 16.67,28.88 20.83,25.62 25,24.33 29.17,25.13 33.33,19.64 37.5,17.2 41.67,17.45 45.83,6.79 50,4 54.17,6.34 58.33,16.67 62.5,14.18 66.67,11.5 70.83,13.98 75,13.81 79.17,11.11 83.33,13.01 87.5,20.29 91.67,25.79 95.83,18.89 100,19" fill="none" stroke="var(--loss)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="19" r="2.2" fill="var(--loss)"/></svg>
+        </div>
+        <div class="idx-card">
+          <div class="name">那斯達克指數</div>
+          <div class="value">25,690.90</div>
+          <div class="chg down">▼ 0.57%</div>
+          <svg class="idx-spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,7.25 4.17,15.39 8.33,4 12.5,12.06 16.67,25.36 20.83,27.89 25,30.6 29.17,32 33.33,20.01 37.5,10.98 41.67,14.97 45.83,19.72 50,13.1 54.17,20.04 58.33,18.85 62.5,11.14 66.67,9.42 70.83,18.79 75,13.43 79.17,9.71 83.33,18.59 87.5,26.89 91.67,27.17 95.83,19.62 100,22.98" fill="none" stroke="var(--loss)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="22.98" r="2.2" fill="var(--loss)"/></svg>
+        </div>
+        <div class="idx-card">
+          <div class="name">費城半導體指數 (SOX)</div>
+          <div class="value">12,410.67</div>
+          <div class="chg up">▲ 0.44%（7/21單日大漲5.21%後持續走高）</div>
+          <svg class="idx-spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,16.68 4.17,14.95 8.33,6.77 12.5,4 16.67,14.9 20.83,15.12 25,10.56 29.17,17.54 33.33,12.75 37.5,7.67 41.67,16.12 45.83,23 50,20.4 54.17,26.08 58.33,23.48 62.5,19.84 66.67,19.77 70.83,25.63 75,22.66 79.17,25.14 83.33,30.17 87.5,32 91.67,31.34 95.83,25.55 100,25.03" fill="none" stroke="var(--gain)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="25.03" r="2.2" fill="var(--gain)"/></svg>
+        </div>
+      </div>
+      <div class="idx-note">趨勢線取自 <a class="src-link" href="https://finance.yahoo.com/quote/%5EGSPC/history/" target="_blank" rel="noopener">Yahoo Finance 歷史股價資料</a>（S&amp;P 500、道瓊、那斯達克、SOX 各取近25個交易日收盤價繪製），終點對齊上方7/22收盤數字；縱軸僅反映區間內相對高低，非固定刻度。</div>
+
+      <div class="movers-row">
+        <div class="movers-card">
+          <h4>本週財報季焦點</h4>
+          <div class="row"><span>Alphabet / Tesla</span><span style="color:var(--gain)">7/22 已公布Q2財報</span></div>
+          <div class="row"><span>Microsoft / Meta / Amazon</span><span>本週陸續公布</span></div>
+          <div class="row"><span>台積電 (2330)</span><span>7/16 法說會 EPS創高27.25元</span></div>
+        </div>
+        <div class="movers-card">
+          <h4>那斯達克走勢</h4>
+          <div class="row"><span>7/22 收盤</span><span style="color:var(--loss)">-0.57%（-146.30點）</span></div>
+          <div class="row"><span>費城半導體指數</span><span style="color:var(--gain)"><a class="src-link" href="https://www.stcn.com/article/detail/4033545.html" target="_blank" rel="noopener">7/21收盤大漲5.21%</a></span></div>
+          <div class="row"><span>油價牽動</span><span style="color:var(--loss)">通膨與升息疑慮升溫</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="taiwan">
+      <div class="section-head">
+        <h2>台股焦點</h2>
+        <span class="tag">7/23 收盤快訊</span>
+      </div>
+      <div class="tw-block">
+        <div class="tw-left">
+          <div class="name">加權指數 TAIEX</div>
+          <div class="tw-bignum">44,850.81</div>
+          <div class="tw-sub">▲ 25.03 點（+0.06%）・盤中震盪近750點，尾盤台積電翻紅助攻收復失土</div>
+          <div class="tw-desc">
+            台股7/23全天震盪劇烈，開盤一度上漲逾260點衝上 <b>45,089.82 點</b>，盤中卻急速翻黑一度下跌逾400點，最低下探 <b>44,340.76 點</b>，終場靠台積電（2330）尾盤拉抬翻紅，收在 <b>2,405 元（+5 元）</b>，帶動電子類股指數同步翻紅，加權指數終場收漲 25.03 點，收在 44,850.81 點，成交值約新台幣 <b>8,925.15 億元</b>，量能仍在低檔。外資、投信、自營商三大法人同步進場，結束近期賣壓。
+          </div>
+        </div>
+        <div class="tw-facts">
+          <div class="tw-fact"><span class="lbl">三大法人合計</span><span class="val" style="color:var(--gain)">買超 164.88 億元</span></div>
+          <div class="tw-fact"><span class="lbl">成交值</span><span class="val">約新台幣 8,925.15 億元</span></div>
+          <div class="tw-fact"><span class="lbl">台積電 (2330)</span><span class="val" style="color:var(--gain)">7/23 收 2,405 元（+5，尾盤翻紅）</span></div>
+          <div class="tw-fact"><span class="lbl">市場話題</span><span class="val">緯創德州D1新廠開幕，黃仁勳親自站台</span></div>
+        </div>
+      </div>
+
+      <div class="asia-strip">
+        <div class="asia-chip"><div class="n">南韓 KOSPI</div><div class="v" style="color:var(--gain)">7,096.89・+4.40%</div></div>
+        <div class="asia-chip"><div class="n">日經平均</div><div class="v" style="color:var(--gain)">66,422.60・+0.46%</div></div>
+        <div class="asia-chip"><div class="n">三星電子</div><div class="v" style="color:var(--gain)">+5.41%</div></div>
+        <div class="asia-chip"><div class="n">SK 海力士</div><div class="v" style="color:var(--gain)">+8.33%</div></div>
+      </div>
+    </section>
+
+    <section id="hotstocks">
+      <div class="section-head">
+        <h2>即時熱門股動態</h2>
+        <span class="tag">7/23 收盤 · 個股焦點</span>
+      </div>
+      <div class="hotstock-table">
+        <div class="hotstock-row head">
+          <div>股票</div><div>成交價</div><div>漲跌%</div><div>成交量</div><div>趨勢（近25交易日）</div>
+        </div>
+        <div class="hotstock-row">
+          <div class="name">緯創<span>3231・美國D1新廠題材</span></div>
+          <div class="price">173.50</div>
+          <div class="chg up">▲5.79%</div>
+          <div class="vol">217,640張</div>
+          <svg class="spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,13.74 4.17,12.93 8.33,16.17 12.5,16.99 16.67,14.96 20.83,20.64 25,19.42 29.17,16.17 33.33,15.36 37.5,16.17 41.67,15.77 45.83,16.58 50,18.61 54.17,25.91 58.33,27.54 62.5,27.54 66.67,28.35 70.83,29.16 75,26.72 79.17,25.91 83.33,32 87.5,28.35 91.67,23.48 95.83,11.71 100,4" fill="none" stroke="var(--gain)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="4" r="2.2" fill="var(--gain)"/></svg>
+        </div>
+        <div class="hotstock-row">
+          <div class="name">台積電<span>2330・尾盤翻紅</span></div>
+          <div class="price">2,405.00</div>
+          <div class="chg up">▲0.21%</div>
+          <div class="vol">25,264張</div>
+          <svg class="spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,16.73 4.17,4 8.33,6.55 12.5,19.27 16.67,19.27 20.83,25.64 25,21.82 29.17,16.73 33.33,4.64 37.5,9.73 41.67,12.27 45.83,10.36 50,12.91 54.17,9.73 58.33,16.09 62.5,16.09 66.67,12.91 70.83,15.45 75,12.91 79.17,9.09 83.33,32 87.5,28.18 91.67,16.73 95.83,18 100,17.36" fill="none" stroke="var(--gain)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="17.36" r="2.2" fill="var(--gain)"/></svg>
+        </div>
+        <div class="hotstock-row">
+          <div class="name">中鋼<span>2002・外資買超居次</span></div>
+          <div class="price">19.10</div>
+          <div class="chg up">▲1.33%</div>
+          <div class="vol">88,994張</div>
+          <svg class="spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,14.18 4.17,4 8.33,11.64 12.5,7.82 16.67,15.45 20.83,16.73 25,15.45 29.17,21.82 33.33,25.64 37.5,26.91 41.67,18 45.83,16.73 50,26.91 54.17,24.36 58.33,28.18 62.5,28.18 66.67,32 70.83,29.45 75,25.64 79.17,21.82 83.33,25.64 87.5,28.18 91.67,21.82 95.83,20.55 100,14.18" fill="none" stroke="var(--gain)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="14.18" r="2.2" fill="var(--gain)"/></svg>
+        </div>
+        <div class="hotstock-row">
+          <div class="name">彰銀<span>2801・外資賣超冠軍</span></div>
+          <div class="price">24.25</div>
+          <div class="chg down">▼1.62%</div>
+          <div class="vol">37,882張</div>
+          <svg class="spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,32 4.17,32 8.33,26.56 12.5,31.22 16.67,21.89 20.83,23.44 25,21.11 29.17,14.11 33.33,16.44 37.5,24.22 41.67,25 45.83,21.89 50,21.89 54.17,15.67 58.33,13.33 62.5,13.33 66.67,16.44 70.83,20.33 75,18 79.17,14.89 83.33,15.67 87.5,16.44 91.67,9.44 95.83,4 100,10.22" fill="none" stroke="var(--loss)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="10.22" r="2.2" fill="var(--loss)"/></svg>
+        </div>
+        <div class="hotstock-row">
+          <div class="name">臺企銀<span>2834・外資賣超居次</span></div>
+          <div class="price">17.90</div>
+          <div class="chg down">▼1.10%</div>
+          <div class="vol">30,795張</div>
+          <svg class="spark" viewBox="0 0 100 36" preserveAspectRatio="none"><polyline points="0,30.25 4.17,32 8.33,25 12.5,19.75 16.67,12.75 20.83,21.5 25,19.75 29.17,21.5 33.33,26.75 37.5,21.5 41.67,14.5 45.83,12.75 50,9.25 54.17,4 58.33,14.5 62.5,14.5 66.67,21.5 70.83,25 75,18 79.17,7.5 83.33,11 87.5,12.75 91.67,12.75 95.83,9.25 100,16.25" fill="none" stroke="var(--loss)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="16.25" r="2.2" fill="var(--loss)"/></svg>
+        </div>
+      </div>
+      <div class="hotstock-note">上表為今日籌碼與新聞面焦點個股（<a class="src-link" href="https://finance.ettoday.net/news/3206153" target="_blank" rel="noopener">外資買賣超前二大個股與賣超冠亞軍</a>、<a class="src-link" href="https://udn.com/news/story/7251/9646292" target="_blank" rel="noopener">台積電收盤資訊</a>），非交易所「熱門排行」即時榜單。成交價、漲跌%與成交量已依 <a class="src-link" href="https://finance.yahoo.com/quote/2330.TW/history/" target="_blank" rel="noopener">Yahoo Finance 個股歷史股價資料</a>重新交叉查證並修正（原「彰銀」「臺企銀」價格與漲跌方向有誤，現已更正為7/23實際收盤下跌）；趨勢線改以近25個交易日實際收盤價繪製（非逐筆走勢圖，盤中即時走勢圖需即時tick資料，本頁為盤後彙整無法提供）。僅供參考，不構成投資建議。</div>
+    </section>
+
+    <section id="commodities">
+      <div class="section-head">
+        <h2>大宗商品與利率</h2>
+        <span class="tag">7/23 最新 / 7/22 收盤</span>
+      </div>
+      <div class="commod-grid">
+        <div class="commod-card">
+          <div class="n">黃金 Gold (XAU/USD)</div>
+          <div class="v">約 $4,103</div>
+          <div class="c down">▼ 約0.6%</div>
+          <p><a class="src-link" href="https://www.fxstreet.com/news/philippines-gold-price-today-gold-falls-according-to-fxstreet-data-202607230500" target="_blank" rel="noopener">金價7/23回落至4,100美元附近，自兩週高點拉回</a>，因油價走高推升升息預期、美元與公債殖利率走強，壓抑黃金避險吸引力。</p>
+        </div>
+        <div class="commod-card">
+          <div class="n">布蘭特原油</div>
+          <div class="v">$98.44</div>
+          <div class="c up">▲ 約4.6%</div>
+          <p><a class="src-link" href="https://www.cnbc.com/2026/07/23/oil-prices-today-wti-brent-trump-iran-hormuz.html" target="_blank" rel="noopener">近六週新高，川普揚言若伊朗再攻擊荷莫茲海峽船隻，美國將轟炸伊朗橋樑與電廠</a>，沙國油輪遇襲消息同步發酵。</p>
+        </div>
+        <div class="commod-card">
+          <div class="n">WTI 原油</div>
+          <div class="v">$90.14</div>
+          <div class="c up">▲ 約3.8%</div>
+          <p>創6月8日以來新高，跟隨布蘭特同步走高，市場關注荷莫茲海峽航運是否進一步受阻。</p>
+        </div>
+      </div>
+      <div class="movers-row">
+        <div class="movers-card">
+          <h4>利率動態</h4>
+          <div class="row"><span>Fed 基準利率</span><span>3.5%~3.75%（6/17會議連續不變）</span></div>
+          <div class="row"><span>7月FOMC市場預期</span><span style="color:var(--loss)">按兵不動機率高</span></div>
+          <div class="row"><span>台灣20年期公債標售殖利率</span><span style="color:var(--loss)">衝上2.2%，近12年新高</span></div>
+        </div>
+        <div class="movers-card">
+          <h4>後市關注</h4>
+          <div class="row"><span>下次FOMC會議</span><span>7/28~29</span></div>
+          <div class="row"><span>本次會議</span><span>不發布利率點陣圖</span></div>
+          <div class="row"><span>關鍵數據</span><span>7月CPI公布前</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="focus">
+      <div class="section-head">
+        <h2>今日四大焦點</h2>
+        <span class="tag">趨勢解讀</span>
+      </div>
+      <div class="story-grid">
+        <div class="story-card">
+          <span class="idx">01 · 地緣政治</span>
+          <h3>川普升高對伊朗軍事威脅，油價衝上近六週新高</h3>
+          <p><a class="src-link" href="https://www.cnbc.com/2026/07/23/oil-prices-today-wti-brent-trump-iran-hormuz.html" target="_blank" rel="noopener">川普揚言只要伊朗再對荷莫茲海峽船隻開火，美國就會轟炸一座伊朗橋樑或電廠作為報復</a>，加上沙國油輪、紅海航運持續遇襲，供給疑慮推升<b>布蘭特原油單日大漲逾4.6%站上98美元</b>、來到近六週高點，<a class="src-link" href="https://www.fxstreet.com/news/philippines-gold-price-today-gold-falls-according-to-fxstreet-data-202607230500" target="_blank" rel="noopener">黃金反而因升息預期升溫從兩週高點回落至4,100美元附近</a>。</p>
+          <span class="kicker down">原油 / 避險資產</span>
+        </div>
+        <div class="story-card">
+          <span class="idx">02 · AI / 半導體</span>
+          <h3>Google上調資本支出展望，日韓晶片股全面噴出</h3>
+          <p><a class="src-link" href="https://www.tradingkey.com/analysis/stocks/more/262049146-ai-investment-boom-lifts-japan-south-korea-markets-kospi-tradingkey" target="_blank" rel="noopener">Alphabet將全年資本支出展望上修至1,950億至2,050億美元，強化市場對AI基礎建設投資將持續加速的信心</a>，激勵日韓股市同步走揚：<a class="src-link" href="https://www.fnnews.com/news/202607231620142490" target="_blank" rel="noopener">南韓三星電子收漲5.41%、SK海力士飆漲8.33%，帶動KOSPI單日大漲4.40%重返7,000點</a>；<a class="src-link" href="https://www.nikkei.com/article/DGXZQOFL230J90T20C26A7000000/" target="_blank" rel="noopener">日經平均同步收漲逾300點，盤中一度上漲800日圓</a>。</p>
+          <span class="kicker gold">AI資本支出 / 存儲晶片</span>
+        </div>
+        <div class="story-card">
+          <span class="idx">03 · 財報季</span>
+          <h3>Alphabet、Tesla本週已開獎，台積電上週上修資本支出至640億美元</h3>
+          <p><a class="src-link" href="https://finance.yahoo.com/markets/live/stock-market-today-wednesday-july-22-dow-sp-500-nasdaq-alphabet-tesla-earnings-083644887.html" target="_blank" rel="noopener">美股科技巨頭財報週登場，Alphabet與Tesla已於7/22公布Q2財報</a>，微軟、Meta、Amazon本週陸續跟進；<a class="src-link" href="https://www.sinotrade.com.tw/richclub/hotstock/%E5%8F%B0%E7%A9%8D%E9%9B%BB%E6%B3%95%E8%AA%AA-%E7%AC%AC%E4%BA%8C%E5%AD%A3EPS%E5%89%B5%E6%AD%B7%E5%8F%B2%E6%96%B0%E9%AB%98%E9%81%9427-25%E5%85%83-%E6%AF%9B%E5%88%A9%E7%8E%8767-7--%E7%AC%AC%E4%B8%89%E5%AD%A3%E6%8C%87%E5%BC%95%E5%86%8D%E5%89%B5%E6%96%B0%E9%AB%98-%E8%82%A1%E5%B8%82%E8%A9%B1%E9%A1%8C-6a588173546795e51e5f5b07" target="_blank" rel="noopener">台積電上週(7/16)法說會Q2 EPS創新高達27.25元、毛利率67.7%，並將全年資本支出上調至600億至640億美元、加碼美國亞利桑那州1,000億美元投資</a>，牽動台股電子供應鏈訂單能見度。</p>
+          <span class="kicker gold">財報 / 資本支出</span>
+        </div>
+        <div class="story-card">
+          <span class="idx">04 · 利率展望</span>
+          <h3>Fed 6月維持利率不變，台灣長債殖利率創近12年新高</h3>
+          <p><a class="src-link" href="https://www.financecalendar.com/event/fomc-rate-decision-july-2026/" target="_blank" rel="noopener">Fed於6月17日利率會議維持3.5%至3.75%區間不變，市場預期7月28-29日的下次FOMC會議將繼續按兵不動，本次會議不會公布利率點陣圖</a>；<a class="src-link" href="https://udn.com/news/story/7239/9646347" target="_blank" rel="noopener">台灣同步反映利率上行壓力，20年期公債標售最高得標殖利率衝上2.2%，創近12年（2014年10月以來）新高</a>，投標倍數僅1.04倍，反映市場對通膨與供給的疑慮。</p>
+          <span class="kicker down">利率 / 通膨</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="watchlist">
+      <div class="section-head">
+        <h2>今日重點觀察名單</h2>
+        <span class="tag">固定邏輯：資金流向 + 產業主題</span>
+      </div>
+      <div class="watch-grid">
+        <div class="watch-card">
+          <span class="watch-tag">買超</span>
+          <div class="watch-body">
+            <h4>緯創 (3231)・中鋼 (2002)</h4>
+            <p><a class="src-link" href="https://finance.ettoday.net/news/3206153" target="_blank" rel="noopener">外資7/23買超逾69億元，買超個股中緯創居冠達7.9萬張，中鋼緊追在後達4.27萬張</a>，為買超前十名中最大兩檔「個股」。緯創受惠美國德州D1新廠開幕、輝達執行長黃仁勳親自站台，股價單日大漲逾5%。</p>
+          </div>
+        </div>
+        <div class="watch-card">
+          <span class="watch-tag">賣超冠軍</span>
+          <div class="watch-body">
+            <h4>彰銀 (2801)</h4>
+            <p><a class="src-link" href="https://finance.ettoday.net/news/3206153" target="_blank" rel="noopener">外資7/23賣超個股中，彰銀以逾2.4萬張居賣超排行之首</a>，金融股成為外資今日獲利了結的主要標的。</p>
+          </div>
+        </div>
+        <div class="watch-card">
+          <span class="watch-tag">賣超居次</span>
+          <div class="watch-body">
+            <h4>台企銀 (2834)</h4>
+            <p><a class="src-link" href="https://finance.ettoday.net/news/3206153" target="_blank" rel="noopener">外資賣超排行居次，賣超前十名中金融股占多數（彰銀、台企銀、第一金、台新新光金、華南金、兆豐金）</a>，籌碼面明顯轉弱，與AI/半導體股買超形成對比。</p>
+          </div>
+        </div>
+        <div class="watch-card">
+          <span class="watch-tag">三大法人</span>
+          <div class="watch-body">
+            <h4>整體籌碼動能</h4>
+            <p><a class="src-link" href="https://www.chinatimes.com/realtimenews/20260723003078-260410" target="_blank" rel="noopener">7/23三大法人同步買超，合計買超164.88億元：外資及陸資買超69.58億元、投信買超53.37億元、自營商買超41.94億元</a>，三方同步進場，外資連兩日回補，市場人氣回溫。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="watch-subhead">另一視角 · <b>產業主題（AI・半導體・金融）</b></div>
+      <div class="watch-grid">
+        <div class="watch-card">
+          <span class="watch-tag">AI</span>
+          <div class="watch-body">
+            <h4>AI 資本支出重燃信心</h4>
+            <p><a class="src-link" href="https://www.tradingkey.com/analysis/stocks/more/262049146-ai-investment-boom-lifts-japan-south-korea-markets-kospi-tradingkey" target="_blank" rel="noopener">Alphabet將全年資本支出展望上修至1,950～2,050億美元，暗示AI基礎建設投資加速</a>；<a class="src-link" href="https://udn.com/news/story/7252/9643284" target="_blank" rel="noopener">輝達執行長黃仁勳親自出席緯創德州D1新廠開幕典禮，全美首片NVIDIA GB300運算基板在此量產</a>，為台廠AI伺服器供應鏈再添動能。</p>
+          </div>
+        </div>
+        <div class="watch-card">
+          <span class="watch-tag">半導體</span>
+          <div class="watch-body">
+            <h4>台韓半導體同步走強</h4>
+            <p><a class="src-link" href="https://www.sinotrade.com.tw/richclub/hotstock/%E5%8F%B0%E7%A9%8D%E9%9B%BB%E6%B3%95%E8%AA%AA-%E7%AC%AC%E4%BA%8C%E5%AD%A3EPS%E5%89%B5%E6%AD%B7%E5%8F%B2%E6%96%B0%E9%AB%98%E9%81%9427-25%E5%85%83-%E6%AF%9B%E5%88%A9%E7%8E%8767-7--%E7%AC%AC%E4%B8%89%E5%AD%A3%E6%8C%87%E5%BC%95%E5%86%8D%E5%89%B5%E6%96%B0%E9%AB%98-%E8%82%A1%E5%B8%82%E8%A9%B1%E9%A1%8C-6a588173546795e51e5f5b07" target="_blank" rel="noopener">台積電上週法說會宣布全年資本支出上調至600～640億美元、Q2 EPS創新高27.25元</a>；<a class="src-link" href="https://www.fnnews.com/news/202607231620142490" target="_blank" rel="noopener">南韓存儲晶片雙雄三星電子、SK海力士分別勁揚5.41%與8.33%，帶動KOSPI大漲4.40%重返7,000點</a>。</p>
+          </div>
+        </div>
+        <div class="watch-card">
+          <span class="watch-tag">金融</span>
+          <div class="watch-body">
+            <h4>外資獲利了結金融股</h4>
+            <p>與買超集中電子╱AI股相反，<a class="src-link" href="https://finance.ettoday.net/news/3206153" target="_blank" rel="noopener">外資賣超前十名中彰銀、台企銀、第一金、台新新光金、華南金、兆豐金等多檔金融股在列</a>，資金由金融股轉向AI與半導體概念股的跡象明顯。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="disclaimer">上方兩組名單分別依「資金流向」與「產業主題」兩種邏輯整理，取自台灣證券交易所公開統計與公開新聞報導，用於協助你快速掌握市場焦點，<b>非投資建議、不構成買賣邀約</b>。實際投資決策請自行評估風險，或諮詢合格投資顧問。</div>
+    </section>
+
+    <section id="automation">
+      <div class="section-head">
+        <h2>每日自動更新</h2>
+        <span class="tag">排程任務已設定</span>
+      </div>
+      <div class="auto-note">
+        這份頁面已透過 <b>Claude Cowork 的排程任務（Scheduled Tasks）</b>設定為每日自動產製：
+        <div class="step"><span class="n">01</span><span>頻率：<b>每日（含週末）台北時間 21:00</b>。</span></div>
+        <div class="step"><span class="n">02</span><span>內容：彙整台股收盤資訊、全球指數、大宗商品與利率、四大焦點新聞，並整理「資金流向」與「產業主題（AI、半導體、金融）」兩組觀察名單。</span></div>
+        <div class="step"><span class="n">03</span><span>格式：比照本頁「市場脈動」版面風格，同步更新本檔案並於 Cowork 對話中留存一份文字摘要。</span></div>
+        <div class="step"><span class="n">04</span><span>若當日尚未開盤或資料尚未公布，將以最近一個交易日的公開數據為準，並於頁面上註明資料時間。</span></div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    <div class="wrap">
+      <div><b>關於本頁：</b>本頁為靜態市場快照，數據擷取自公開財經媒體與台灣證券交易所於 2026 年 7 月 22–23 日之報導，非即時報價，僅供參考，不構成投資建議。若需更新至最新交易日資訊，可請 Claude 重新產製。</div>
+      <div class="sources">資料來源：中央社 CNA · ETtoday · CNBC · ABC News · Yahoo Finance · Nikkei · 聯合新聞網 UDN · 中時新聞網 · FXStreet · TradingKey · 東方財富 · fnnews · 證券時報 STCN · 玩股網 Wantgoo · 台灣證券交易所 (TWSE)</div>
+    </div>
+  </footer>
+
+<script>
+  // Build ticker content from the same figures shown above, duplicated once for seamless loop
+  const items = [
+    ['TAIEX 加權指數','44,850.81','+25.03 (+0.06%)',true],
+    ['S&P 500','7,498.96','+0.10%',true],
+    ['NASDAQ','25,690.90','-0.57%',false],
+    ['DOW JONES','52,218.58','-0.01%',false],
+    ['SOX 費城半導體','12,410.67','+0.44%',true],
+    ['KOSPI','7,096.89','+4.40%',true],
+    ['NIKKEI 225','66,422.60','+0.46%',true],
+    ['GOLD','$4,103','-0.6%',false],
+    ['BRENT CRUDE','$98.44','+4.6%',true],
+    ['WTI CRUDE','$90.14','+3.8%',true],
+    ['台積電 2330','$2,405','+5 (尾盤翻紅)',true],
+  ];
+  function buildTicker(){
+    let html = '';
+    for(let r=0;r<2;r++){
+      items.forEach(([name,val,chg,dir])=>{
+        const cls = dir===true?'up':dir===false?'down':'';
+        const arrow = dir===true?'▲':dir===false?'▼':'•';
+        html += `<span class="tick"><b>${name}</b><span class="num">${val}</span><span class="${cls}">${arrow} ${chg}</span></span>`;
+      });
+    }
+    document.getElementById('tickerTrack').innerHTML = html;
+  }
+  buildTicker();
+</script>
+
+</body>
+</html>
