@@ -1,0 +1,35 @@
+name: Daily Market Pulse Update
+
+on:
+  schedule:
+    # 每天 UTC 時間 13:00 (相當於台灣時間晚上 21:00) 自動執行
+    - cron: '0 13 * * *'
+  workflow_dispatch: # 允許隨時在 GitHub 網頁上手動按按鈕觸發
+
+permissions:
+  contents: write
+
+jobs:
+  update-market-pulse:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Fetch Market Data and Update HTML
+        run: |
+          # 這裡未來可以執行更新資料的 Python 腳本
+          python update_data.py || true
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto update daily market pulse" && git push)
+          
