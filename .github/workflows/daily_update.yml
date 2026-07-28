@@ -2,8 +2,7 @@ name: Daily Market Pulse Update
 
 on:
   schedule:
-    # 每天 UTC 時間 13:00 (相當於台灣時間晚上 21:00) 自動執行
-    - cron: '0 13 * * *'
+    - cron: '0 13 * * *' # 每天 UTC 時間 13:00（相當於台灣時間晚上 21:00）自動執行
   workflow_dispatch: # 允許隨時在 GitHub 網頁上手動按按鈕觸發
 
 permissions:
@@ -24,7 +23,7 @@ jobs:
       - name: Fetch Market Data and Update HTML
         run: |
           # 這裡未來可以執行更新資料的 Python 腳本
-          python update_data.py || true
+          python update_data.py
 
       - name: Commit and Push Changes
         run: |
