@@ -2,36 +2,37 @@ name: Daily Market Pulse Update
 
 on:
   schedule:
-    - cron: '0 13 * * *' # 每天 UTC 時間 13:00（相當於台灣時間晚上 21:00）自動執行
-  workflow_dispatch: # 允許隨時在 GitHub 網頁上手動按按鈕觸發
-
-permissions:
-  contents: write
+    # 每天台北時間 21:00 (UTC 13:00) 自動執行
+    - cron: '0 13 * * *'
+  workflow_dispatch: # 支援手動按鈕觸發
 
 jobs:
   update-market-pulse:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Repository
+      - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: '3.11'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests beautifulsoup4 pandas yfinance
+      - name: Run update script
+        run: python update_data.py
+        env:
+          FIREBASE_DB_URL: ${{ secrets.FIREBASE_DB_URL }}
+          FIREBASE_AUTH: ${{ secrets.FIREBASE_AUTH }}
 
-      - name: Fetch Market Data and Update HTML
+      - name: Commit and push updated index.html
         run: |
-          python update_data.py
-
-      - name: Commit and Push Changes
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto update daily market pulse" && git push)
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add index.html
+          if git diff --staged --quiet; then
+            echo "沒有檢測到靜態頁面變更，跳過 Commit。"
+          else
+            git commit -m "chore: auto-update market pulse data [skip ci]"
+            git push
+          fi
