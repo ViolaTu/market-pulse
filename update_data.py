@@ -6,6 +6,10 @@ update_data.py — 市場脈動 Market Pulse 每日資料更新腳本
 由 GitHub Actions（.github/workflows/daily_update.yml）於每日台北時間 21:00
 （UTC 13:00）自動執行，讓 index.html 每天都能反映最新的台股／美股／亞股／
 大宗商品數據，以及當日財經新聞焦點。
+
+本版本在原有腳本基礎上新增「費城半導體指數 (SOX)」，使 Firebase 推送的
+globalIndices 涵蓋 S&P 500、道瓊、那斯達克、SOX 四項全球指數，與頁面上
+「全球指數」四張卡片一一對應。
 """
 
 from __future__ import annotations
@@ -46,18 +50,19 @@ FIREBASE_AUTH = os.environ.get("FIREBASE_AUTH", "")
 
 # Yahoo Finance 代碼對照
 SYMBOLS = {
-    "taiex":  ("^TWII",     "加權指數 TAIEX"),
-    "tsmc":   ("2330.TW",   "台積電 2330"),
-    "sp500":  ("^GSPC",     "S&P 500"),
-    "dow":    ("^DJI",      "道瓊工業指數"),
-    "nasdaq": ("^IXIC",     "那斯達克"),
-    "nikkei": ("^N225",     "日經平均"),
-    "kospi":  ("^KS11",     "KOSPI（南韓）"),
-    "hsi":    ("^HSI",      "恆生指數"),
-    "sse":    ("000001.SS", "上證指數"),
-    "gold":   ("GC=F",      "黃金期貨"),
-    "brent":  ("BZ=F",      "布蘭特原油"),
-    "wti":    ("CL=F",      "WTI原油"),
+    "taiex": ("^TWII", "加權指數 TAIEX"),
+    "tsmc": ("2330.TW", "台積電 2330"),
+    "sp500": ("^GSPC", "S&P 500"),
+    "dow": ("^DJI", "道瓊工業指數"),
+    "nasdaq": ("^IXIC", "那斯達克"),
+    "sox": ("^SOX", "費城半導體指數 (SOX)"),
+    "nikkei": ("^N225", "日經平均"),
+    "kospi": ("^KS11", "KOSPI（南韓）"),
+    "hsi": ("^HSI", "恆生指數"),
+    "sse": ("000001.SS", "上證指數"),
+    "gold": ("GC=F", "黃金期貨"),
+    "brent": ("BZ=F", "布蘭特原油"),
+    "wti": ("CL=F", "WTI原油"),
 }
 
 HOTSTOCK_LIST = [
@@ -69,13 +74,12 @@ HOTSTOCK_LIST = [
 ]
 
 SECTOR_WATCH = {
-    "ai":   ("AI", "AI 供應鏈個股動態", [("3231.TW", "緯創"), ("2317.TW", "鴻海"), ("2382.TW", "廣達")]),
+    "ai": ("AI", "AI 供應鏈個股動態", [("3231.TW", "緯創"), ("2317.TW", "鴻海"), ("2382.TW", "廣達")]),
     "semi": ("半導體", "半導體類股動態", [("2330.TW", "台積電"), ("2303.TW", "聯電"), ("6770.TW", "力積電")]),
-    "fin":  ("金融", "金融股動態", [("2882.TW", "國泰金"), ("2881.TW", "富邦金"), ("2891.TW", "中信金")]),
+    "fin": ("金融", "金融股動態", [("2882.TW", "國泰金"), ("2881.TW", "富邦金"), ("2891.TW", "中信金")]),
 }
 
 CNA_RSS_URL = "https://feeds.feedburner.com/rsscna/finance"
-
 
 # ============================================================================
 # 小工具
@@ -84,42 +88,34 @@ CNA_RSS_URL = "https://feeds.feedburner.com/rsscna/finance"
 def log(msg: str) -> None:
     print(f"[update_data] {msg}", flush=True)
 
-
 def http_get(url: str, timeout: int = TIMEOUT) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read()
 
-
 def fmt_2f(n: float) -> str:
     return f"{n:,.2f}"
-
 
 def signed(n: float, decimals: int = 2) -> str:
     sign = "+" if n >= 0 else "-"
     return f"{sign}{abs(n):,.{decimals}f}"
 
-
 def pct(n: float) -> str:
     sign = "+" if n >= 0 else "-"
     return f"{sign}{abs(n):.2f}%"
 
-
 def is_etf_code(code: str) -> bool:
     return code.startswith("00")
-
 
 def escape_html(s: str) -> str:
     return (s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
              .replace('"', "&quot;").replace("'", "&#39;"))
-
 
 # ============================================================================
 # 1. Yahoo Finance 報價
 # ============================================================================
 
 YAHOO_HOSTS = ["query1.finance.yahoo.com", "query2.finance.yahoo.com"]
-
 
 def fetch_yahoo_chart(symbol: str, range_: str = "1mo", interval: str = "1d") -> dict | None:
     last_err = None
@@ -159,7 +155,6 @@ def fetch_yahoo_chart(symbol: str, range_: str = "1mo", interval: str = "1d") ->
     log(f"⚠️ Yahoo Finance 抓取失敗 {symbol}: {last_err}")
     return None
 
-
 def fetch_all_quotes() -> dict:
     quotes = {}
     for key, (symbol, _name) in SYMBOLS.items():
@@ -168,7 +163,6 @@ def fetch_all_quotes() -> dict:
             quotes[key] = q
         time.sleep(0.3)
     return quotes
-
 
 # ============================================================================
 # 2. TWSE 官方資料
@@ -186,7 +180,6 @@ def twse_get_json(url: str) -> dict | None:
         log(f"⚠️ TWSE 資料抓取失敗 {url}: {e}")
         return None
 
-
 def find_trading_day_data(fetch_fn, max_back: int = 6):
     d = NOW
     for _ in range(max_back):
@@ -196,7 +189,6 @@ def find_trading_day_data(fetch_fn, max_back: int = 6):
             return data, d
         d -= timedelta(days=1)
     return None, None
-
 
 def fetch_institutional_totals(date_str: str) -> dict | None:
     url = f"https://www.twse.com.tw/rwd/zh/fund/BFI82U?dayDate={date_str}&response=json"
@@ -227,7 +219,6 @@ def fetch_institutional_totals(date_str: str) -> dict | None:
     if "dealer" not in result and ("dealer_self" in result or "dealer_hedge" in result):
         result["dealer"] = result.get("dealer_self", 0) + result.get("dealer_hedge", 0)
     return result or None
-
 
 def fetch_foreign_top_movers(date_str: str):
     url = f"https://www.twse.com.tw/rwd/zh/fund/T86?date={date_str}&selectType=ALL&response=json"
@@ -272,7 +263,6 @@ def fetch_foreign_top_movers(date_str: str):
     top_sell = sorted(rows, key=lambda r: r["net_lots"])[:2]
     return top_buy, top_sell
 
-
 # ============================================================================
 # 3. 中央社（CNA）財經 RSS
 # ============================================================================
@@ -294,7 +284,6 @@ def fetch_cna_headlines(limit: int = 4) -> list[dict]:
         log(f"⚠️ 中央社 RSS 抓取失敗: {e}")
         return []
 
-
 # ============================================================================
 # 4. Firebase Realtime Database 寫入
 # ============================================================================
@@ -313,11 +302,11 @@ def build_firebase_payload(quotes: dict) -> dict:
         }
 
     ticker = [ticker_item(k) for k in
-              ["taiex", "tsmc", "sp500", "dow", "nasdaq", "gold", "brent", "wti", "nikkei", "kospi"]]
+              ["taiex", "tsmc", "sp500", "dow", "nasdaq", "sox", "gold", "brent", "wti", "nikkei", "kospi"]]
     ticker = [t for t in ticker if t]
 
     global_indices = []
-    for k in ["sp500", "dow", "nasdaq"]:
+    for k in ["sp500", "dow", "nasdaq", "sox"]:
         q = quotes.get(k)
         if not q:
             continue
@@ -358,7 +347,6 @@ def build_firebase_payload(quotes: dict) -> dict:
         "hotStocks": hot_stocks,
     }
 
-
 def push_to_firebase(payload: dict) -> bool:
     url = f"{FIREBASE_DB_URL}/market-data.json"
     if FIREBASE_AUTH:
@@ -375,7 +363,6 @@ def push_to_firebase(payload: dict) -> bool:
         log(f"⚠️ Firebase 寫入失敗: {e}")
         return False
 
-
 # ============================================================================
 # 5. 改寫 index.html 中的靜態區塊
 # ============================================================================
@@ -391,7 +378,6 @@ def replace_block(html: str, marker: str, new_inner: str | None) -> str:
         log(f"⚠️ 找不到錨點 AUTO:{marker}，略過此區塊更新")
         return html
     return pattern.sub(lambda m: f"{m.group(1)}\n{new_inner}\n{m.group(3)}", html)
-
 
 def build_tw_hero(quotes: dict, inst_totals: dict | None) -> str | None:
     taiex = quotes.get("taiex")
@@ -418,17 +404,16 @@ def build_tw_hero(quotes: dict, inst_totals: dict | None) -> str | None:
         range_line = f'盤中最高 {fmt_2f(taiex["dayHigh"])} 點、最低 {fmt_2f(taiex["dayLow"])} 點，'
 
     lines = [
-        f'          <div class="tw-bignum" style="color:{color}">{fmt_2f(taiex["price"])}</div>',
-        f'          <div class="tw-sub" style="color:{color}">{arrow}'
+        f'  <div class="tw-bignum" style="color:{color}">{fmt_2f(taiex["price"])}</div>',
+        f'  <div class="tw-sub" style="color:{color}">{arrow}'
         f'{taiex["change"]:,.2f} ({pct(taiex["changePct"])})</div>',
-        '          <div class="tw-desc">',
-        f'            台股{TODAY_MD}{"收漲" if up else "收跌"}{abs(taiex["change"]):,.2f} 點'
+        '  <div class="tw-desc">',
+        f'    台股{TODAY_MD}{"收漲" if up else "收跌"}{abs(taiex["change"]):,.2f} 點'
         f'（{pct(taiex["changePct"])}），收在 <b>{fmt_2f(taiex["price"])} 點</b>，{range_line}'
         f'{tsmc_line}{total_line}大盤呈現偏多震盪格局。',
-        '          </div>',
+        '  </div>',
     ]
     return "\n".join(lines)
-
 
 def build_tw_facts(quotes: dict, inst_totals: dict | None) -> str:
     lines = []
@@ -437,12 +422,12 @@ def build_tw_facts(quotes: dict, inst_totals: dict | None) -> str:
         verb = "+" if yi >= 0 else "-"
         color = "var(--up-red)" if yi >= 0 else "var(--down-green)"
         lines.append(
-            '          <div class="tw-fact"><span class="lbl">三大法人合計</span>'
+            '  <div class="tw-fact"><span class="lbl">三大法人合計</span>'
             f'<span class="val" style="color:{color}">{verb}{abs(yi):,.1f} 億</span></div>'
         )
     else:
         lines.append(
-            '          <div class="tw-fact"><span class="lbl">三大法人合計</span>'
+            '  <div class="tw-fact"><span class="lbl">三大法人合計</span>'
             '<span class="val">資料尚未公布</span></div>'
         )
 
@@ -451,16 +436,15 @@ def build_tw_facts(quotes: dict, inst_totals: dict | None) -> str:
         up = tsmc["change"] >= 0
         color = "var(--up-red)" if up else "var(--down-green)"
         lines.append(
-            '          <div class="tw-fact"><span class="lbl">台積電 (2330)</span>'
+            '  <div class="tw-fact"><span class="lbl">台積電 (2330)</span>'
             f'<span class="val" style="color:{color}">{fmt_2f(tsmc["price"])} ({pct(tsmc["changePct"])})</span></div>'
         )
 
     lines.append(
-        '          <div class="tw-fact"><span class="lbl">成交量</span>'
+        '  <div class="tw-fact"><span class="lbl">成交量</span>'
         '<span class="val">約 3,850 億</span></div>'
     )
     return "\n".join(lines)
-
 
 def build_asia_strip(quotes: dict) -> str:
     order = [("nikkei", "日經 225"), ("kospi", "南韓 KOSPI"),
@@ -470,17 +454,16 @@ def build_asia_strip(quotes: dict) -> str:
         q = quotes.get(key)
         if not q:
             chips.append(
-                f'        <div class="asia-chip"><div class="n">{label}</div>'
+                f'  <div class="asia-chip"><div class="n">{label}</div>'
                 '<div class="v">資料尚未公布</div></div>'
             )
             continue
         color = "var(--up-red)" if q["change"] >= 0 else "var(--down-green)"
         chips.append(
-            f'        <div class="asia-chip"><div class="n">{label}</div>'
+            f'  <div class="asia-chip"><div class="n">{label}</div>'
             f'<div class="v" style="color:{color}">{fmt_2f(q["price"])}</div></div>'
         )
     return "\n".join(chips)
-
 
 def build_commod_grid(quotes: dict) -> str:
     specs = [("gold", "黃金 Gold", " / 盎司"), ("brent", "布蘭特原油 Brent", " / 桶"), ("wti", "WTI 原油", " / 桶")]
@@ -489,18 +472,17 @@ def build_commod_grid(quotes: dict) -> str:
         q = quotes.get(key)
         if not q:
             cards.append(
-                f'        <div class="commod-card"><div class="n">{label}</div>'
+                f'  <div class="commod-card"><div class="n">{label}</div>'
                 '<div class="v">資料尚未公布</div></div>'
             )
             continue
         cards.append(
-            '        <div class="commod-card">\n'
-            f'          <div class="n">{label}</div>\n'
-            f'          <div class="v">${fmt_2f(q["price"])}{unit}</div>\n'
-            '        </div>'
+            '  <div class="commod-card">\n'
+            f'    <div class="n">{label}</div>\n'
+            f'    <div class="v">${fmt_2f(q["price"])}{unit}</div>\n'
+            '  </div>'
         )
     return "\n".join(cards)
-
 
 def build_focus_stories(headlines: list[dict]) -> str | None:
     """產出可點擊的新聞卡片 HTML"""
@@ -510,18 +492,16 @@ def build_focus_stories(headlines: list[dict]) -> str | None:
     for i, h in enumerate(headlines[:4], start=1):
         clean_title = escape_html(h["title"])
         cards.append(
-            '        <div class="story-card">\n'
-            f'          <a href="{h["link"]}" target="_blank" rel="noopener" style="text-decoration: none; color: inherit; display: block;">\n'
-            f'            <p><b>{i}. {clean_title}</b>：點擊即可閱讀中央社財經新聞完整原始報導。</p>\n'
-            '          </a>\n'
-            '        </div>'
+            '  <div class="story-card">\n'
+            f'    <a href="{h["link"]}" target="_blank" rel="noopener" style="text-decoration: none; color: inherit; display: block;">\n'
+            f'      <p><b>{i}. {clean_title}</b>：點擊即可閱讀中央社財經新聞完整原始報導。</p>\n'
+            '    </a>\n'
+            '  </div>'
         )
     return "\n".join(cards)
 
-
 TWSE_T86_URL = "https://www.twse.com.tw/zh/trading/foreign/t86.html"
 TWSE_BFI82U_URL = "https://www.twse.com.tw/zh/trading/foreign/bfi82u.html"
-
 
 def build_watch_flow(top_buy, top_sell, inst_totals) -> str:
     if top_buy:
@@ -532,9 +512,9 @@ def build_watch_flow(top_buy, top_sell, inst_totals) -> str:
         buy_detail = "TWSE 外資買賣超資料尚未公布或非交易日"
 
     card_buy = (
-        '        <div class="watch-card">\n'
-        f'          <p>外資買超個股前二大為 <a href="{TWSE_T86_URL}" target="_blank" style="color: var(--accent-blue); text-decoration: none;">{buy_names}</a> ({buy_detail})。</p>\n'
-        '        </div>'
+        '  <div class="watch-card">\n'
+        f'    <p>外資買超個股前二大為 <a href="{TWSE_T86_URL}" target="_blank" style="color: var(--accent-blue); text-decoration: none;">{buy_names}</a> ({buy_detail})。</p>\n'
+        '  </div>'
     )
 
     if inst_totals and "total" in inst_totals:
@@ -545,13 +525,12 @@ def build_watch_flow(top_buy, top_sell, inst_totals) -> str:
         inst_p = "外資現貨轉買、期貨淨空單有所回減，籌碼面呈現偏多格局。"
 
     card_inst = (
-        '        <div class="watch-card">\n'
-        f'          <p><a href="{TWSE_BFI82U_URL}" target="_blank" style="color: inherit; text-decoration: none;">{inst_p}</a></p>\n'
-        '        </div>'
+        '  <div class="watch-card">\n'
+        f'    <p><a href="{TWSE_BFI82U_URL}" target="_blank" style="color: inherit; text-decoration: none;">{inst_p}</a></p>\n'
+        '  </div>'
     )
 
     return "\n".join([card_buy, card_inst])
-
 
 def build_watch_sector() -> str:
     cards = []
@@ -567,16 +546,14 @@ def build_watch_sector() -> str:
             time.sleep(0.2)
         detail = "、".join(parts) if parts else "資料尚未公布"
         cards.append(
-            '        <div class="watch-card">\n'
-            f'          <p><b>{title}</b>：{detail}。</p>\n'
-            '        </div>'
+            '  <div class="watch-card">\n'
+            f'    <p><b>{title}</b>：{detail}。</p>\n'
+            '  </div>'
         )
     return "\n".join(cards)
 
-
 def update_footer(html: str) -> str:
     return html
-
 
 # ============================================================================
 # main
@@ -614,11 +591,10 @@ def main() -> None:
 
     log("✅ index.html 靜態區塊已更新完成（包含新聞連結功能）")
 
-
 if __name__ == "__main__":
     try:
         main()
     except Exception:
         log("❌ 執行過程發生未預期錯誤：")
         traceback.print_exc()
-        sys.exit(0)
+    sys.exit(0)
