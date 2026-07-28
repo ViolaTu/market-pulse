@@ -1,741 +1,197 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>市場脈動 · 每日金融快報</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --ink:#12141c;
-    --ink-2:#1b1f2c;
-    --ink-3:#242a3a;
-    --hairline:#333a4d;
-    --paper:#ede8db;
-    --paper-dim:#a9a396;
-    --gain:#c1503e;
-    --gain-soft:rgba(193,80,62,.14);
-    --loss:#5c9a7a;
-    --loss-soft:rgba(92,154,122,.14);
-    --gold:#c9a12f;
-    --gold-soft:rgba(201,161,47,.14);
-    --radius:10px;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:var(--ink);
-    color:var(--paper);
-    font-family:'IBM Plex Sans',sans-serif;
-    -webkit-font-smoothing:antialiased;
-  }
-  .num{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>市場脈動 Market Pulse</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --border: #1f2937;
+      --text: #f3f4f6;
+      --subtext: #9ca3af;
+      --accent: #3b82f6;
+      --gain: #10b981; /* 綠色上漲 */
+      --loss: #ef4444; /* 紅色下跌 */
+      --gold: #f59e0b;
+    }
 
-  /* ---------- Ticker ---------- */
-  .ticker-outer{
-    background:var(--ink-3);
-    border-bottom:1px solid var(--hairline);
-    overflow:hidden;
-    white-space:nowrap;
-    padding:9px 0;
-  }
-  .ticker-track{
-    display:inline-flex;
-    animation:scrollTicker 42s linear infinite;
-  }
-  @media (prefers-reduced-motion: reduce){
-    .ticker-track{animation:none;}
-    .ticker-outer{overflow-x:auto;}
-  }
-  @keyframes scrollTicker{
-    0%{transform:translateX(0);}
-    100%{transform:translateX(-50%);}
-  }
-  .tick{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:0 22px;
-    font-family:'IBM Plex Mono',monospace;
-    font-size:12.5px;
-    letter-spacing:.02em;
-    border-right:1px solid var(--hairline);
-  }
-  .tick b{font-weight:600;color:var(--paper);}
-  .tick .up{color:var(--gain);}
-  .tick .down{color:var(--loss);}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+      padding: 24px 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-  /* ---------- Masthead ---------- */
-  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
-  .masthead{padding:46px 28px 30px;max-width:1180px;margin:0 auto;border-bottom:1px solid var(--hairline);}
-  .eyebrow{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:12px;letter-spacing:.16em;text-transform:uppercase;
-    color:var(--gold);margin-bottom:14px;display:flex;gap:10px;align-items:center;
-  }
-  .eyebrow::before{content:"●";font-size:8px;}
-  .masthead h1{
-    font-family:'Fraunces',serif;
-    font-weight:600;
-    font-size:clamp(38px,6vw,64px);
-    line-height:1.02;
-    margin:0 0 14px;
-    letter-spacing:-.01em;
-  }
-  .masthead h1 em{font-style:italic;font-weight:400;color:var(--paper-dim);}
-  .masthead-meta{
-    display:flex;flex-wrap:wrap;gap:24px;
-    font-size:13.5px;color:var(--paper-dim);
-    font-family:'IBM Plex Mono',monospace;
-    margin-top:18px;
-  }
-  .masthead-meta span b{color:var(--paper);font-weight:600;}
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+    h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.025em; }
+    .header-meta { text-align: right; font-size: 0.85rem; color: var(--subtext); }
 
-  section{padding:44px 0;}
-  .section-head{
-    display:flex;align-items:baseline;justify-content:space-between;
-    margin-bottom:22px;flex-wrap:wrap;gap:8px;
-  }
-  .section-head h2{
-    font-family:'Fraunces',serif;font-weight:600;font-size:26px;margin:0;
-  }
-  .section-head .tag{
-    font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--paper-dim);
-    text-transform:uppercase;letter-spacing:.1em;
-  }
+    .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+    @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
 
-  /* ---------- Index cards ---------- */
-  .idx-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
-  .idx-card{
-    background:var(--ink-2);border:1px solid var(--hairline);border-radius:var(--radius);
-    padding:20px 22px;
-  }
-  .idx-card .name{font-size:13px;color:var(--paper-dim);margin-bottom:10px;}
-  .idx-card .value{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:600;}
-  .idx-card .chg{font-family:'IBM Plex Mono',monospace;font-size:14px;margin-top:4px;}
-  .idx-card .chg.up{color:var(--gain);} .idx-card .chg.down{color:var(--loss);}
-  .bar-track{height:5px;background:var(--ink-3);border-radius:3px;margin-top:14px;overflow:hidden;}
-  .bar-fill{height:100%;border-radius:3px;}
-  .bar-fill.up{background:var(--gain);} .bar-fill.down{background:var(--loss);}
-  .idx-spark{width:100%;height:38px;display:block;margin-top:14px;}
-  .idx-note{font-size:12px;color:var(--paper-dim);line-height:1.7;margin-top:14px;}
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
 
-  .movers-row{display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;}
-  .movers-card{
-    flex:1;min-width:230px;
-    background:var(--ink-2);border:1px solid var(--hairline);border-radius:var(--radius);
-    padding:18px 20px;
-  }
-  .movers-card h4{
-    font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.08em;
-    text-transform:uppercase;color:var(--paper-dim);margin:0 0 12px;
-  }
-  .movers-card .row{display:flex;justify-content:space-between;font-size:14px;padding:6px 0;border-top:1px solid var(--hairline);}
-  .movers-card .row:first-of-type{border-top:none;}
-  .movers-card .row span:last-child{font-family:'IBM Plex Mono',monospace;}
+    .tw-bignum { font-size: 2.8rem; font-weight: 800; line-height: 1.1; margin: 8px 0; }
+    .tw-sub { font-size: 1.1rem; font-weight: 600; margin-bottom: 12px; }
+    .tw-desc { font-size: 0.95rem; color: var(--subtext); line-height: 1.6; }
+    .tw-desc b { color: var(--text); }
 
-  /* ---------- Taiwan hero number ---------- */
-  .tw-block{
-    display:grid;grid-template-columns:1.1fr 1fr;gap:28px;
-    background:var(--ink-2);border:1px solid var(--hairline);border-radius:var(--radius);
-    padding:32px;
-  }
-  .tw-left .name{font-size:13px;color:var(--paper-dim);margin-bottom:6px;}
-  .tw-bignum{
-    font-family:'IBM Plex Mono',monospace;font-weight:700;
-    font-size:clamp(44px,6vw,72px);color:var(--gain);line-height:1;
-    letter-spacing:-.01em;
-  }
-  .tw-sub{font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--gain);margin-top:8px;}
-  .tw-desc{font-size:14.5px;line-height:1.7;color:var(--paper-dim);margin-top:18px;}
-  .tw-desc b{color:var(--paper);font-weight:600;}
-  .tw-facts{display:flex;flex-direction:column;gap:14px;justify-content:center;}
-  .tw-fact{
-    display:flex;justify-content:space-between;align-items:center;
-    border-bottom:1px solid var(--hairline);padding-bottom:12px;
-  }
-  .tw-fact:last-child{border-bottom:none;}
-  .tw-fact .lbl{font-size:13.5px;color:var(--paper-dim);}
-  .tw-fact .val{font-family:'IBM Plex Mono',monospace;font-size:15px;}
+    .tw-fact { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border); font-size: 0.9rem; }
+    .tw-fact:last-child { border-bottom: none; }
+    .tw-fact .lbl { color: var(--subtext); }
+    .tw-fact .val { font-weight: 600; }
 
-  .asia-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px;}
-  .asia-chip{
-    background:var(--ink-2);border:1px solid var(--hairline);border-radius:var(--radius);
-    padding:16px 18px;
-  }
-  .asia-chip .n{font-size:12.5px;color:var(--paper-dim);}
-  .asia-chip .v{font-family:'IBM Plex Mono',monospace;font-size:19px;margin-top:6px;}
+    .asia-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .asia-chip { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+    .asia-chip .n { font-size: 0.8rem; color: var(--subtext); }
+    .asia-chip .v { font-size: 1rem; font-weight: 700; margin-top: 4px; }
 
-  /* ---------- Hot stocks ---------- */
-  .hotstock-table{
-    background:var(--ink-2);border:1px solid var(--hairline);border-radius:var(--radius);
-    overflow:hidden;
-  }
-  .hotstock-row{
-    display:grid;grid-template-columns:1.6fr .9fr .9fr 1fr 1.1fr;
-    gap:14px;align-items:center;
-    padding:14px 22px;border-bottom:1px solid var(--hairline);
-  }
-  .hotstock-row:last-child{border-bottom:none;}
-  .hotstock-row.head{
-    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;
-    text-transform:uppercase;color:var(--paper-dim);padding:12px 22px;
-    background:var(--ink-3);
-  }
-  .hotstock-row .name{font-size:14.5px;font-weight:600;}
-  .hotstock-row .name span{
-    display:block;font-family:'IBM Plex Mono',monospace;font-weight:400;
-    font-size:11.5px;color:var(--paper-dim);margin-top:2px;
-  }
-  .hotstock-row .price{font-family:'IBM Plex Mono',monospace;font-size:15px;}
-  .hotstock-row .chg{font-family:'IBM Plex Mono',monospace;font-size:14px;}
-  .hotstock-row .chg.up{color:var(--gain);} .hotstock-row .chg.down{color:var(--loss);}
-  .hotstock-row .vol{font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:var(--paper-dim);}
-  .hotstock-row .spark{width:100px;height:34px;display:block;}
-  .hotstock-note{
-    font-size:12px;color:var(--paper-dim);line-height:1.7;margin-top:14px;
-  }
-  @media (max-width:860px){
-    .hotstock-row{grid-template-columns:1.3fr .8fr .8fr;}
-    .hotstock-row .vol, .hotstock-row .spark{display:none;}
-  }
+    .section-title { display: flex; align-items: center; gap: 8px; margin: 28px 0 16px 0; }
+    .section-title h2 { font-size: 1.25rem; font-weight: 700; }
+    .section-title .tag { font-size: 0.75rem; background: var(--border); color: var(--subtext); padding: 2px 8px; border-radius: 4px; }
 
-  /* ---------- Commodities ---------- */
-  .commod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-  .commod-card{
-    background:var(--ink-2);border:1px solid var(--hairline);border-radius:var(--radius);
-    padding:20px 22px;
-  }
-  .commod-card .n{font-size:13px;color:var(--paper-dim);}
-  .commod-card .v{font-family:'IBM Plex Mono',monospace;font-size:24px;margin-top:8px;font-weight:600;}
-  .commod-card .c{font-family:'IBM Plex Mono',monospace;font-size:13.5px;margin-top:4px;}
-  .commod-card .c.up{color:var(--gain);} .commod-card .c.down{color:var(--loss);}
-  .commod-card p{font-size:13px;color:var(--paper-dim);line-height:1.6;margin:12px 0 0;}
+    .commod-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .commod-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .commod-card .n { font-size: 0.85rem; color: var(--subtext); }
+    .commod-card .v { font-size: 1.5rem; font-weight: 700; margin: 4px 0; }
+    .commod-card .c { font-size: 0.85rem; font-weight: 600; }
+    .commod-card .c.up { color: var(--gain); }
+    .commod-card .c.down { color: var(--loss); }
+    .commod-card p { font-size: 0.8rem; color: var(--subtext); margin-top: 8px; }
 
-  /* ---------- Focus stories ---------- */
-  .story-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
-  .story-card{
-    background:var(--ink-2);border:1px solid var(--hairline);border-radius:var(--radius);
-    padding:26px 26px 24px;position:relative;
-  }
-  .story-card .idx{
-    font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--gold);
-    letter-spacing:.08em;margin-bottom:12px;display:block;
-  }
-  .story-card h3{
-    font-family:'Fraunces',serif;font-weight:600;font-size:21px;margin:0 0 10px;line-height:1.25;
-  }
-  .story-card p{font-size:14px;line-height:1.75;color:var(--paper-dim);margin:0;}
-  .story-card .kicker{
-    display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;
-    padding:3px 9px;border-radius:20px;margin-top:16px;letter-spacing:.03em;
-  }
-  .kicker.gold{background:var(--gold-soft);color:var(--gold);}
-  .kicker.up{background:var(--gain-soft);color:var(--gain);}
-  .kicker.down{background:var(--loss-soft);color:var(--loss);}
+    .stories-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .story-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; }
+    .story-card .idx { font-size: 0.75rem; color: var(--accent); font-weight: 700; text-transform: uppercase; }
+    .story-card h3 { font-size: 1rem; font-weight: 600; margin: 8px 0; line-height: 1.4; }
+    .story-card p { font-size: 0.82rem; color: var(--subtext); margin-bottom: 12px; }
+    .story-card .kicker { font-size: 0.75rem; font-weight: 600; }
+    .story-card .kicker.gold { color: var(--gold); }
 
-  footer{
-    border-top:1px solid var(--hairline);padding:30px 0 50px;
-    font-size:12.5px;color:var(--paper-dim);line-height:1.8;
-  }
-  footer b{color:var(--paper);}
-  footer .sources{margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+    .watch-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .watch-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; display: flex; gap: 12px; align-items: flex-start; }
+    .watch-tag { font-size: 0.75rem; font-weight: 700; padding: 4px 8px; border-radius: 4px; background: var(--border); white-space: nowrap; }
+    .watch-body h4 { font-size: 0.95rem; font-weight: 600; }
+    .watch-body p { font-size: 0.82rem; color: var(--subtext); margin-top: 4px; }
 
-  /* ---------- Watchlist ---------- */
-  .watch-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
-  .watch-card{
-    background:var(--ink-2);border:1px solid var(--hairline);border-radius:var(--radius);
-    padding:18px 20px;display:flex;gap:14px;align-items:flex-start;
-  }
-  .watch-tag{
-    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink);
-    background:var(--gold);border-radius:5px;padding:3px 7px;flex:none;font-weight:600;
-    white-space:nowrap;
-  }
-  .watch-body h4{margin:0 0 4px;font-size:15px;font-weight:600;}
-  .watch-body p{margin:0;font-size:13px;line-height:1.6;color:var(--paper-dim);}
-  .src-link{color:var(--paper);text-decoration:underline;text-decoration-color:var(--gold);text-underline-offset:2px;}
-  .src-link:hover{color:var(--gold);}
-  .disclaimer{
-    margin-top:16px;font-size:12px;color:var(--paper-dim);line-height:1.7;
-    border-left:2px solid var(--gold);padding-left:12px;
-  }
-  .watch-subhead{
-    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em;
-    text-transform:uppercase;color:var(--paper-dim);
-    margin:26px 0 12px;padding-top:22px;border-top:1px solid var(--hairline);
-  }
-  .watch-subhead b{color:var(--gold);}
+    a.src-link { color: inherit; text-decoration: none; }
+    a.src-link:hover { text-decoration: underline; color: var(--accent); }
 
-  /* ---------- Automation notice ---------- */
-  .auto-note{
-    background:var(--ink-2);border:1px dashed var(--hairline);border-radius:var(--radius);
-    padding:20px 22px;font-size:13.5px;line-height:1.8;color:var(--paper-dim);
-  }
-  .auto-note b{color:var(--paper);}
-  .auto-note .step{
-    display:flex;gap:10px;margin-top:10px;font-size:13px;
-  }
-  .auto-note .step .n{
-    font-family:'IBM Plex Mono',monospace;color:var(--gold);flex:none;
-  }
-
-  @media (max-width:860px){
-    .idx-grid{grid-template-columns:1fr;}
-    .commod-grid{grid-template-columns:1fr;}
-    .story-grid{grid-template-columns:1fr;}
-    .tw-block{grid-template-columns:1fr;}
-    .asia-strip{grid-template-columns:repeat(2,1fr);}
-    .masthead{padding:36px 20px 24px;}
-    .wrap{padding:0 20px;}
-  }
-</style>
+    footer { text-align: center; font-size: 0.8rem; color: var(--subtext); margin-top: 48px; border-top: 1px solid var(--border); padding-top: 24px; }
+  </style>
 </head>
 <body>
 
-  <div class="ticker-outer">
-    <div class="ticker-track" id="tickerTrack"></div>
-  </div>
+  <header>
+    <div>
+      <h1>台股焦點</h1>
+    </div>
+    <div class="header-meta">
+      <div id="date-text">--</div>
+      <div id="data-time">--</div>
+    </div>
+  </header>
 
-  <div class="masthead">
-    <div class="eyebrow">每日金融快報 · Daily Market Wire</div>
-    <h1>市場脈動<br><em>Market Pulse</em></h1>
-    <div class="masthead-meta">
-      <span>日期 <b id="metaDate">載入中…</b></span>
-      <span>資料時間 <b id="metaTime">載入中…</b></span>
-      <span>涵蓋 <b id="metaCoverage">美股 · 亞股 · 台股 · 大宗商品</b></span>
+  <!-- 全球市場與台股主要指標 -->
+  <div class="grid-2">
+    <div class="card">
+      <span class="tag" style="font-size:0.75rem; color:var(--subtext);">加權指數 TAIEX</span>
+      
+      <!-- AUTO:TW_HERO:START -->
+      <div class="tw-bignum" style="color:var(--gain)">--</div>
+      <div class="tw-sub" style="color:var(--gain)">--</div>
+      <div class="tw-desc">資料載入中...</div>
+      <!-- AUTO:TW_HERO:END -->
+
+    </div>
+
+    <div class="card" style="display:flex; flex-direction:column; justify-content:center;">
+      
+      <!-- AUTO:TW_FACTS:START -->
+      <div class="tw-fact"><span class="lbl">三大法人合計</span><span class="val">載入中...</span></div>
+      <div class="tw-fact"><span class="lbl">台積電 (2330)</span><span class="val">載入中...</span></div>
+      <div class="tw-fact"><span class="lbl">資料時間</span><span class="val">載入中...</span></div>
+      <!-- AUTO:TW_FACTS:END -->
+
     </div>
   </div>
 
-  <div class="wrap">
+  <!-- 亞股速覽 -->
+  <div class="asia-strip">
+    <!-- AUTO:ASIA_STRIP:START -->
+    <div class="asia-chip"><div class="n">日經平均</div><div class="v">載入中...</div></div>
+    <div class="asia-chip"><div class="n">KOSPI（南韓）</div><div class="v">載入中...</div></div>
+    <div class="asia-chip"><div class="n">恆生指數</div><div class="v">載入中...</div></div>
+    <div class="asia-chip"><div class="n">上證指數</div><div class="v">載入中...</div></div>
+    <!-- AUTO:ASIA_STRIP:END -->
+  </div>
 
-    <section id="global">
-      <div class="section-head">
-        <h2>全球指數</h2>
-        <span class="tag" id="globalTag">即時讀取中…</span>
-      </div>
-      <div class="idx-grid" id="globalIdxGrid">
-        <div class="idx-card"><div class="name">正在從 Firebase 讀取指數資料…</div></div>
-      </div>
-      <div class="idx-note">趨勢線與數值即時讀取自 Firebase Realtime Database（<code>/market-data/globalIndices</code>）；縱軸僅反映區間內相對高低，非固定刻度。</div>
+  <!-- 大宗商品 -->
+  <div class="section-title">
+    <h2>大宗商品與利率</h2>
+    <span class="tag">最新</span>
+  </div>
+  <div class="commod-grid">
+    <!-- AUTO:COMMOD_GRID:START -->
+    <div class="commod-card"><div class="n">黃金 Gold</div><div class="v">載入中...</div></div>
+    <div class="commod-card"><div class="n">布蘭特原油 Brent</div><div class="v">載入中...</div></div>
+    <div class="commod-card"><div class="n">WTI 原油</div><div class="v">載入中...</div></div>
+    <!-- AUTO:COMMOD_GRID:END -->
+  </div>
 
-      <div class="movers-row">
-        <div class="movers-card">
-          <h4>財報季衝擊</h4>
-          <div class="row"><span>Alphabet（7/22公布Q2財報後）</span><span style="color:var(--loss)"><a class="src-link" href="https://news.cnyes.com/news/id/6544263" target="_blank" rel="noopener">重挫近6%</a></span></div>
-          <div class="row"><span>Tesla（7/22公布Q2財報後）</span><span style="color:var(--loss)"><a class="src-link" href="https://www.tradingkey.com/zh-hant/analysis/stocks/us-stock/262049853-stock-tesla-tsla-price-ai-tradingkey" target="_blank" rel="noopener">股價崩跌逾10~15%</a></span></div>
-          <div class="row"><span>費城半導體指數</span><span style="color:var(--loss)">7/23下跌0.54%</span></div>
-        </div>
-        <div class="movers-card">
-          <h4>亞股同步收黑</h4>
-          <div class="row"><span>日經平均</span><span style="color:var(--loss)"><a class="src-link" href="https://news.tvbs.com.tw/money/3266451" target="_blank" rel="noopener">重挫2,187.69點（-3.29%）</a></span></div>
-          <div class="row"><span>KOSPI（韓國）</span><span style="color:var(--loss)">6,662.37點（-6.12%）</span></div>
-          <div class="row"><span>上證指數</span><span style="color:var(--loss)">3,814.20點（-1.61%）</span></div>
-        </div>
-      </div>
-    </section>
+  <!-- 今日四大焦點 -->
+  <div class="section-title">
+    <h2>今日四大焦點</h2>
+    <span class="tag">中央社財經焦點</span>
+  </div>
+  <div class="stories-grid">
+    <!-- AUTO:FOCUS_STORIES:START -->
+    <div class="story-card"><p>資料載入中...</p></div>
+    <!-- AUTO:FOCUS_STORIES:END -->
+  </div>
 
-    <section id="taiwan">
-      <div class="section-head">
-        <h2>台股焦點</h2>
-        <span class="tag">7/28 收盤快訊</span>
-      </div>
-      <div class="tw-block">
-        <div class="tw-left">
-          <div class="name">加權指數 TAIEX</div>
-          <div class="tw-bignum" style="color:var(--loss)">43,654.84</div>
-          <div class="tw-sub" style="color:var(--loss)">▼ 1,195.97 點（-2.67%）・史上第9大單日跌點</div>
-          <div class="tw-desc">
-            台股7/24受<b>中東紅海油輪遇襲、荷莫茲海峽航運趨零</b>推升國際油價站上百元大關，加上<b>美國新一輪對等關稅於台北時間中午12時01分生效</b>、美股AI資本支出疑慮引爆科技股拋售等多重利空夾擊，開盤即摜破800點，終場<a class="src-link" href="https://udn.com/news/story/7251/9648667" target="_blank" rel="noopener">大跌1,195.97點、跌幅2.67%，收在43,654.84點</a>，盤中最高44,769.39點、最低43,607.40點，<a class="src-link" href="https://news.cnyes.com/news/id/6544957" target="_blank" rel="noopener">寫下史上第9大單日跌點紀錄，並跌破季線失守4萬4關卡</a>。台積電（2330）同步<a class="src-link" href="https://www.nownews.com/news/6859749" target="_blank" rel="noopener">下跌55元、收在2,350元（-2.29%）</a>，成交值約新台幣7,924.35億元，量能較前一日明顯萎縮。
-          </div>
-        </div>
-        <div class="tw-facts">
-          <div class="tw-fact"><span class="lbl">三大法人合計</span><span class="val" style="color:var(--loss)">賣超約663.94億元</span></div>
-          <div class="tw-fact"><span class="lbl">成交值</span><span class="val">約新台幣7,924.35億元</span></div>
-          <div class="tw-fact"><span class="lbl">台積電 (2330)</span><span class="val" style="color:var(--loss)">7/24 收2,350元（-55元，-2.29%）</span></div>
-          <div class="tw-fact"><span class="lbl">市場話題</span><span class="val">中東油輪遇襲＋川普新關稅生效＋AI ROI疑慮三重利空</span></div>
-        </div>
-      </div>
+  <!-- 籌碼觀察 -->
+  <div class="section-title">
+    <h2>外資與籌碼觀察</h2>
+    <span class="tag">TWSE 公開資訊</span>
+  </div>
+  <div class="watch-grid">
+    <!-- AUTO:WATCH_FLOW:START -->
+    <div class="watch-card"><div class="watch-body"><p>資料載入中...</p></div></div>
+    <!-- AUTO:WATCH_FLOW:END -->
+  </div>
 
-      <div class="asia-strip">
-        <div class="asia-chip"><div class="n">日經平均</div><div class="v" style="color:var(--loss)">▼ -2,187.69（-3.29%）</div></div>
-        <div class="asia-chip"><div class="n">KOSPI（南韓）</div><div class="v" style="color:var(--loss)">6,662.37・-6.12%</div></div>
-        <div class="asia-chip"><div class="n">恆生指數</div><div class="v" style="color:var(--loss)">24,963.23・-0.98%</div></div>
-        <div class="asia-chip"><div class="n">上證指數</div><div class="v" style="color:var(--loss)">3,814.20・-1.61%</div></div>
-      </div>
-    </section>
-
-    <section id="hotstocks">
-      <div class="section-head">
-        <h2>即時熱門股動態</h2>
-        <span class="tag" id="hotstockTag">即時讀取中…</span>
-      </div>
-      <div class="hotstock-table">
-        <div class="hotstock-row head">
-          <div>股票</div><div>成交價</div><div>漲跌%</div><div>成交量</div><div>趨勢（近25交易日）</div>
-        </div>
-        <div id="hotstockRows">
-          <div class="hotstock-row"><div class="name">正在從 Firebase 讀取熱門股資料…</div></div>
-        </div>
-      </div>
-      <div class="hotstock-note">上表個股組成、成交價、漲跌%、成交量與趨勢線皆即時讀取自 Firebase Realtime Database（<code>/market-data/hotStocks</code>），非交易所「熱門排行」即時榜單（非逐筆走勢圖，盤中即時走勢圖需即時tick資料，本頁為彙整近25個交易日收盤資料）。僅供參考，不構成投資建議。</div>
-    </section>
-
-    <section id="commodities">
-      <div class="section-head">
-        <h2>大宗商品與利率</h2>
-        <span class="tag">7/28 最新</span>
-      </div>
-      <div class="commod-grid">
-        <div class="commod-card">
-          <div class="n">黃金 Gold（現貨，XAU/USD）</div>
-          <div class="v">約 $4,089</div>
-          <div class="c down">▼ 自本週高點回落</div>
-          <p>金價本週一度衝上<a class="src-link" href="https://www.tradingkey.com/zh-hans/analysis/commodities/metal/262051900-gold-price-forecast-oil-prices-break-100-inflation-gold-prices-fall-tradingkey" target="_blank" rel="noopener">4,166.19美元高點，但受油價飆升推升升息與通膨預期影響，7/24承壓回落至4,000～4,100美元區間</a>。</p>
-        </div>
-        <div class="commod-card">
-          <div class="n">布蘭特原油 Brent</div>
-          <div class="v">突破 $100</div>
-          <div class="c up">▲ 5月以來首見百元關卡</div>
-          <p><a class="src-link" href="https://www.epochtimes.com/gb/26/7/23/n14815832.htm" target="_blank" rel="noopener">受葉門青年運動襲擊沙國油輪、荷莫茲海峽通航量趨零影響，布蘭特原油單日大漲逾6%重返100美元上方</a>，為5月以來首見。</p>
-        </div>
-        <div class="commod-card">
-          <div class="n">WTI 原油</div>
-          <div class="v">$92.36</div>
-          <div class="c up">▲ +6.37%</div>
-          <p><a class="src-link" href="https://www.vantagemarkets.com/en/market-analysis/crude-oil-price-today-brent-wti-23-july-2026/" target="_blank" rel="noopener">WTI原油7/23收在92.36美元，連續第5個交易日走高，創6月初以來新高</a>，市場持續關注中東緊張局勢是否進一步升級。</p>
-        </div>
-      </div>
-      <div class="movers-row">
-        <div class="movers-card">
-          <h4>利率動態</h4>
-          <div class="row"><span>Fed 現行基準利率</span><span>3.50%～3.75%</span></div>
-          <div class="row"><span>7/28～29 FOMC市場預期</span><span><a class="src-link" href="https://www.financecalendar.com/event/fomc-rate-decision-july-2026/" target="_blank" rel="noopener">維持不變機率63.1%</a></span></div>
-          <div class="row"><span>6月會議PCE通膨預測</span><span style="color:var(--loss)">上修至3.6%（3月為2.7%）</span></div>
-        </div>
-        <div class="movers-card">
-          <h4>後市關注</h4>
-          <div class="row"><span>下次FOMC會議</span><span>7/28～29（不發布利率點陣圖）</span></div>
-          <div class="row"><span>油價推升通膨疑慮</span><span style="color:var(--loss)">恐牽動降息路徑</span></div>
-          <div class="row"><span>台灣公債殖利率</span><span>近月標售利率走高，反映升息預期</span></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="focus">
-      <div class="section-head">
-        <h2>今日四大焦點</h2>
-        <span class="tag">趨勢解讀</span>
-      </div>
-      <div class="story-grid">
-        <div class="story-card">
-          <span class="idx">01 · 地緣政治 / 貿易</span>
-          <h3>中東油輪遇襲＋美國新關稅同日生效，雙重利空重擊全球市場</h3>
-          <p><a class="src-link" href="https://www.epochtimes.com/gb/26/7/23/n14815832.htm" target="_blank" rel="noopener">葉門青年運動宣稱襲擊兩艘沙國油輪，荷莫茲海峽通航量趨零，推升布蘭特原油單日大漲逾6%、重返100美元上方</a>，同時<a class="src-link" href="https://www.cna.com.tw/news/aopl/202607240053.aspx" target="_blank" rel="noopener">美國對60個貿易夥伴課徵的新一輪301關稅於台北時間7/24中午生效，台灣、日本、南韓、歐盟等地適用10%稅率</a>，兩大利空同步發酵，觸發全球股市避險賣壓。</p>
-          <span class="kicker down">原油 / 關稅</span>
-        </div>
-        <div class="story-card">
-          <span class="idx">02 · AI / 財報季</span>
-          <h3>Alphabet、Tesla財報後重挫，AI資本支出回收疑慮蔓延</h3>
-          <p><a class="src-link" href="https://news.cnyes.com/news/id/6544263" target="_blank" rel="noopener">Alphabet與Tesla於7/22公布Q2財報後股價分別重挫近6%與逾10%，主因兩家公司同步宣示將大幅加碼AI相關投資、自由現金流轉負，引發市場對「AI投資回收率（AI ROI）」的疑慮</a>，<a class="src-link" href="https://www.cna.com.tw/news/afe/202607240295.aspx" target="_blank" rel="noopener">拖累那斯達克指數重挫2.15%，並牽動日、韓、台等亞股科技權值股同步走弱</a>。</p>
-          <span class="kicker down">AI資本支出 / 科技股</span>
-        </div>
-        <div class="story-card">
-          <span class="idx">03 · 台股</span>
-          <h3>台股創史上第9大單日跌點，外資單日狂賣609.5億元</h3>
-          <p><a class="src-link" href="https://udn.com/news/story/7251/9648667" target="_blank" rel="noopener">台股7/24重挫1,195.97點、收在43,654.84點，寫下史上第9大單日跌點，摜破季線失守44,000點關卡</a>；<a class="src-link" href="https://newtalk.tw/news/view/2026-07-24/1049185" target="_blank" rel="noopener">外資單日狂賣609.5億元、終結連4日買超，投信則逆勢連續第23個交易日買超57.08億元撐盤，但仍難擋整體賣壓</a>。</p>
-          <span class="kicker down">外資賣壓 / 籌碼</span>
-        </div>
-        <div class="story-card">
-          <span class="idx">04 · 利率展望</span>
-          <h3>Fed 7/28～29 FOMC登場，油價推升通膨疑慮添變數</h3>
-          <p><a class="src-link" href="https://www.financecalendar.com/event/fomc-rate-decision-july-2026/" target="_blank" rel="noopener">聯準會將於7月28～29日召開FOMC會議，市場預期維持3.50%～3.75%利率區間不變的機率為63.1%</a>，<a class="src-link" href="https://www.sinotrade.com.tw/richclub/hotopic/2026%E5%B9%B4Fed%E9%A0%90%E4%BC%B0%E5%88%A9%E7%8E%87%E5%89%8D%E7%9E%BB-%E6%9C%80%E6%96%B0FOMC%E6%B1%BA%E8%AD%B0%E8%B3%87%E8%A8%8A%E6%95%B4%E7%90%86-FOMC%E6%98%AF%E4%BB%80%E9%BA%BC-%E5%A6%82%E4%BD%95%E9%80%8F%E9%81%8EFed%E9%BB%9E%E9%99%A3%E5%9C%96%E8%A7%A3%E8%AE%80%E5%B8%82%E5%A0%B4--68638b45db1ddc006c224294" target="_blank" rel="noopener">但6月會議已將PCE通膨預測由2.7%上修至3.6%，中東油價飆漲恐進一步推升通膨疑慮，為後續降息路徑增添不確定性</a>。</p>
-          <span class="kicker gold">FOMC / 通膨</span>
-        </div>
-      </div>
-    </section>
-
-    <section id="watchlist">
-      <div class="section-head">
-        <h2>今日重點觀察名單</h2>
-        <span class="tag">固定邏輯：資金流向 + 產業主題</span>
-      </div>
-      <div class="watch-grid">
-        <div class="watch-card">
-          <span class="watch-tag">買超</span>
-          <div class="watch-body">
-            <h4>緯創 (3231)・中鋼 (2002)</h4>
-            <p>儘管外資今日大舉出脫台股，<a class="src-link" href="https://ec.ltn.com.tw/article/breakingnews/5516574" target="_blank" rel="noopener">外資買超個股中緯創以逾3.24萬張居冠，中鋼以逾3.04萬張緊追在後</a>，為買超前十名中最大兩檔「個股」。緯創受惠美國德州D1新廠開幕、輝達執行長黃仁勳親自站台及AMD新機櫃系統Helios雙題材，股價逆勢走高至184元。</p>
-          </div>
-        </div>
-        <div class="watch-card">
-          <span class="watch-tag">賣超冠軍</span>
-          <div class="watch-body">
-            <h4>力積電 (6770)</h4>
-            <p><a class="src-link" href="https://tw.stock.yahoo.com/news/%E3%80%90follow%E6%B3%95%E4%BA%BA%E3%80%91%E5%8A%9B%E7%A9%8D%E9%9B%BB%E6%B7%AA%E5%80%92%E8%B2%A8%E7%8E%8B%EF%BC%81%E5%A4%96%E8%B3%87%E8%B3%A3%E8%B6%8543%E8%90%AC%E5%BC%B5%E5%B1%85%E5%86%A0-0050%E5%92%8C4%E6%AA%94%E4%B8%BB%E5%8B%95%E5%BC%8Fetf%E4%B9%9F%E9%81%AD%E7%8B%99%E6%AE%BA-071330256.html" target="_blank" rel="noopener">力積電淪為外資今日倒貨王，遭賣超逾4.3萬張居冠</a>，0050與多檔主動式ETF亦同步遭外資獲利了結（不列入個股排行）。</p>
-          </div>
-        </div>
-        <div class="watch-card">
-          <span class="watch-tag">賣超居次</span>
-          <div class="watch-body">
-            <h4>台塑 (1301)</h4>
-            <p>外資賣超個股排行中，<a class="src-link" href="https://udn.com/news/story/7251/9649218" target="_blank" rel="noopener">台塑（1301）以約2.1萬張居次，台化、群創、南亞科、台積電等亦名列賣超前十大</a>，反映傳產與部分電子權值股同步遭調節。</p>
-          </div>
-        </div>
-        <div class="watch-card">
-          <span class="watch-tag">三大法人</span>
-          <div class="watch-body">
-            <h4>整體籌碼動能</h4>
-            <p><a class="src-link" href="https://newtalk.tw/news/view/2026-07-24/1049185" target="_blank" rel="noopener">7/24三大法人合計賣超約663.94億元：外資賣超609.5億元（終結連4日買超）、投信買超57.08億元（連23買）、自營商賣超111.51億元</a>，籌碼面單日急轉直下。</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="watch-subhead">另一視角 · <b>產業主題（AI・半導體・金融）</b></div>
-      <div class="watch-grid">
-        <div class="watch-card">
-          <span class="watch-tag">AI</span>
-          <div class="watch-body">
-            <h4>緯創逆勢走強，AI供應鏈冰火兩重天</h4>
-            <p><a class="src-link" href="https://udn.com/news/story/7252/9643284" target="_blank" rel="noopener">緯創美國德州D1新廠開幕、輝達執行長黃仁勳親自站台，為全美首片NVIDIA GB300運算基板量產地</a>，<a class="src-link" href="https://finance.ettoday.net/news/3207002" target="_blank" rel="noopener">加上超微新AI機櫃系統Helios題材加持，緯創股價本週天天上漲、逆勢衝高至184元</a>，但同時間<a class="src-link" href="https://news.cnyes.com/news/id/6544263" target="_blank" rel="noopener">Alphabet、Tesla財報後重挫，全球AI資本支出回收疑慮升溫</a>，AI供應鏈呈現冰火兩重天格局。</p>
-          </div>
-        </div>
-        <div class="watch-card">
-          <span class="watch-tag">半導體</span>
-          <div class="watch-body">
-            <h4>半導體全面走弱，聯電重挫逾7%</h4>
-            <p>受美股科技股拋售與AI ROI疑慮牽動，台股半導體類股全面走弱：聯電（2303）重挫逾7%、力積電（6770）遭外資倒貨逾4.3萬張居冠，<a class="src-link" href="https://www.nownews.com/news/6859749" target="_blank" rel="noopener">台積電（2330）同步下跌55元收2,350元，台積電ADR亦同步走弱</a>，反映晶圓代工與記憶體供應鏈同受賣壓衝擊。</p>
-          </div>
-        </div>
-        <div class="watch-card">
-          <span class="watch-tag">金融</span>
-          <div class="watch-body">
-            <h4>金融股同步收黑，資金風險趨避</h4>
-            <p><a class="src-link" href="https://tw.stock.yahoo.com/news/%E5%8F%B0%E5%8C%97%E8%82%A1%E5%B8%82-%E4%B8%89%E5%A4%A7%E6%B3%95%E4%BA%BA24%E6%97%A5%E8%B3%A3%E8%B6%85%E5%89%8D%E5%8D%81%E5%A4%A7-3%E6%AA%94%E5%80%92%E8%B2%A8%E9%80%BE%E8%90%AC%E5%BC%B5-%E7%AB%9F%E9%83%BD%E6%98%AF%E9%87%91%E6%8E%A7%E6%B4%BE-082104108.html" target="_blank" rel="noopener">三大法人7/24賣超前十大個股中，多檔金控股遭大舉調節逾萬張</a>，國泰金、富邦金、中信金等金融股同步收黑，成為大盤重挫的壓力來源之一，反映資金在地緣風險升溫下轉趨保守。</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="disclaimer">上方兩組名單分別依「資金流向」與「產業主題」兩種邏輯整理，取自台灣證券交易所公開統計與公開新聞報導，用於協助你快速掌握市場焦點，<b>非投資建議、不構成買賣邀約</b>。實際投資決策請自行評估風險，或諮詢合格投資顧問。</div>
-    </section>
-
-    <section id="automation">
-      <div class="section-head">
-        <h2>每日自動更新</h2>
-        <span class="tag">排程任務已設定</span>
-      </div>
-      <div class="auto-note">
-        這份頁面已透過 <b>Claude Cowork 的排程任務（Scheduled Tasks）</b>設定為每日自動產製：
-        <div class="step"><span class="n">01</span><span>頻率：<b>每日（含週末）台北時間 21:00</b>。</span></div>
-        <div class="step"><span class="n">02</span><span>內容：彙整台股收盤資訊、全球指數、大宗商品與利率、四大焦點新聞，並整理「資金流向」與「產業主題（AI、半導體、金融）」兩組觀察名單。</span></div>
-        <div class="step"><span class="n">03</span><span>格式：比照本頁「市場脈動」版面風格，同步更新本檔案並於 Cowork 對話中留存一份文字摘要。</span></div>
-        <div class="step"><span class="n">04</span><span>若當日尚未開盤或資料尚未公布，將以最近一個交易日的公開數據為準，並於頁面上註明資料時間。</span></div>
-      </div>
-    </section>
-
+  <!-- 產業觀察 -->
+  <div class="section-title">
+    <h2>產業主題動態</h2>
+    <span class="tag">代表個股</span>
+  </div>
+  <div class="watch-grid">
+    <!-- AUTO:WATCH_SECTOR:START -->
+    <div class="watch-card"><div class="watch-body"><p>資料載入中...</p></div></div>
+    <!-- AUTO:WATCH_SECTOR:END -->
   </div>
 
   <footer>
-    <div class="wrap">
-      <div><b>關於本頁：</b>本頁為靜態市場快照，數據擷取自公開財經媒體與台灣證券交易所於 2026 年 7 月 28 日之報導，非即時報價，僅供參考，不構成投資建議。若需更新至最新交易日資訊，可請 Claude 重新產製。</div>
-      <div class="sources">資料來源：中央社 CNA · 聯合新聞網 UDN · ETtoday財經雲 · 自由財經 · 三立新聞網 SETN · Newtalk新聞 · NOWnews今日新聞 · 鉅亨網 · Yahoo股市 · TVBS新聞網 · 工商時報 · 大紀元 · Washington Post · Vantage Markets · TradingKey · 每日經濟新聞 · 玩股網 Wantgoo · 台灣證券交易所 (TWSE)</div>
-    </div>
+    <p>數據擷取自公開財經媒體與台灣證券交易所於 今日 之報導。本網頁為自動化資訊彙整，不構成任何投資建議。</p>
   </footer>
-
-<script type="module">
-  // ============================================================================
-  // Firebase Realtime Database 即時資料整合
-  // 監聽 /market-data 節點，資料一有變動就自動重新渲染：頁首日期／資料時間、
-  // 全球指數卡片（含折線圖）、即時熱門股表格（含折線圖）與跑馬燈(ticker)。
-  //
-  // /market-data 資料結構（欄位皆為「根層級」，對應你已測試過的 curl 寫入格式）：
-  // {
-  //   "updatedAt": "21:00",
-  //   "dateText": "2026年07月23日（週四）",
-  //   "coverage": "美股 · 亞股 · 台股 · 大宗商品",              // 選填
-  //   "globalTag": "美股 7/22 收盤 · 近25個交易日走勢",          // 選填
-  //   "hotstockTag": "7/23 收盤 · 個股焦點",                    // 選填
-  //   "ticker": [                                              // 選填
-  //     { "name": "TAIEX 加權指數", "value": "44,850.81", "change": "+25.03 (+0.06%)", "isUp": true }
-  //   ],
-  //   "globalIndices": [
-  //     {
-  //       "name": "S&P 500", "price": "7,498.96", "change": "+0.10%", "isUp": true,
-  //       "trend": [7511.35, 7420.10, "... 近25個交易日收盤價 ...", 7498.96]   // 選填，缺少時不畫折線圖
-  //     }
-  //   ],
-  //   "hotStocks": [                                            // 選填
-  //     {
-  //       "name": "緯創", "code": "3231", "note": "美國D1新廠題材",
-  //       "price": "173.50", "change": "▲5.79%", "isUp": true,
-  //       "volume": "217,640張", "trend": [161.50, "...", 173.50]
-  //     }
-  //   ]
-  // }
-  //
-  // isUp 為 true/false，決定顏色（依台股慣例：漲=紅/var(--gain)，跌=綠/var(--loss)）與箭頭符號。
-  // trend 為原始數值陣列，長度不限，前端會自動正規化畫成折線圖；沒提供就不畫圖，不會報錯。
-  // 除了 updatedAt / dateText / globalIndices 之外都是選填，缺少的欄位會顯示合理預設值，
-  // 不會一直卡在「載入中 / 讀取中」。
-  // ============================================================================
-
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-  const firebaseConfig = {
-    databaseURL: "https://market-data-365c7-default-rtdb.firebaseio.com",
-    projectId: "market-data-365c7"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  // ---------- 小工具 ----------
-  function escapeHTML(str){
-    if(str===undefined || str===null) return '';
-    return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  }
-  function round2(n){ return Math.round(n*100)/100; }
-
-  // 將任意長度的數值陣列正規化為 viewBox="0 0 100 36" 的折線圖座標
-  function buildSparkline(values){
-    if(!Array.isArray(values) || values.length===0) return null;
-    const nums = values.map(Number).filter(v=>!Number.isNaN(v));
-    if(nums.length===0) return null;
-    const n = nums.length;
-    const min = Math.min(...nums);
-    const max = Math.max(...nums);
-    const range = max-min;
-    const pts = nums.map((v,i)=>{
-      const x = n===1 ? 0 : round2(i*100/(n-1));
-      const y = range===0 ? 18 : round2(4 + (max-v)/range*28);
-      return `${x},${y}`;
-    });
-    const [lastX,lastY] = pts[pts.length-1].split(',');
-    return { pointsAttr: pts.join(' '), lastX, lastY };
-  }
-
-  function sparkSVG(values, dirClass, sizeClass){
-    const spark = buildSparkline(values);
-    const color = dirClass==='down' ? 'var(--loss)' : 'var(--gain)';
-    if(!spark){
-      return `<svg class="${sizeClass}" viewBox="0 0 100 36" preserveAspectRatio="none"></svg>`;
-    }
-    return `<svg class="${sizeClass}" viewBox="0 0 100 36" preserveAspectRatio="none">`
-      + `<polyline points="${spark.pointsAttr}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>`
-      + `<circle cx="${spark.lastX}" cy="${spark.lastY}" r="2.2" fill="${color}"/></svg>`;
-  }
-
-  function isUpFlag(item){
-    if(typeof item.isUp === 'boolean') return item.isUp;
-    if(item.dir === 'up') return true;
-    if(item.dir === 'down') return false;
-    return true;
-  }
-
-  // ---------- 各區塊渲染（欄位皆為根層級，資料一到就清除「載入中」字樣） ----------
-  function renderMeta(data){
-    const dateEl = document.getElementById('metaDate');
-    const timeEl = document.getElementById('metaTime');
-    const coverageEl = document.getElementById('metaCoverage');
-    const globalTagEl = document.getElementById('globalTag');
-    const hotstockTagEl = document.getElementById('hotstockTag');
-    if(dateEl) dateEl.textContent = data.dateText || '-';
-    if(timeEl) timeEl.textContent = data.dataTime || (data.updatedAt ? `台北時間 ${data.updatedAt} 台股收盤後快照` : '-');
-    if(coverageEl) coverageEl.textContent = data.coverage || '美股 · 亞股 · 台股 · 大宗商品';
-    if(globalTagEl) globalTagEl.textContent = data.globalTag || '即時資料';
-    if(hotstockTagEl) hotstockTagEl.textContent = data.hotstockTag || '即時資料';
-  }
-
-  function renderTicker(list){
-    const track = document.getElementById('tickerTrack');
-    if(!track) return;
-    if(!Array.isArray(list) || list.length===0){
-      track.innerHTML = '<span class="tick">尚無跑馬燈資料</span>';
-      return;
-    }
-    let html = '';
-    for(let r=0;r<2;r++){
-      list.forEach(item=>{
-        const up = isUpFlag(item);
-        const cls = up ? 'up' : 'down';
-        const arrow = up ? '▲' : '▼';
-        const value = item.value ?? item.price ?? '';
-        const change = item.change ?? '';
-        html += `<span class="tick"><b>${escapeHTML(item.name)}</b><span class="num">${escapeHTML(value)}</span><span class="${cls}">${arrow} ${escapeHTML(change)}</span></span>`;
-      });
-    }
-    track.innerHTML = html;
-  }
-
-  function renderGlobalIndices(list){
-    const grid = document.getElementById('globalIdxGrid');
-    if(!grid) return;
-    if(!Array.isArray(list) || list.length===0){
-      grid.innerHTML = '<div class="idx-card"><div class="name">目前尚無指數資料</div></div>';
-      return;
-    }
-    grid.innerHTML = list.map(idx=>{
-      const up = isUpFlag(idx);
-      const dirClass = up ? 'up' : 'down';
-      const arrow = up ? '▲' : '▼';
-      const price = idx.price ?? idx.value ?? '-';
-      const change = idx.change ?? idx.changeLabel ?? '';
-      return `<div class="idx-card">`
-        + `<div class="name">${escapeHTML(idx.name)}</div>`
-        + `<div class="value">${escapeHTML(price)}</div>`
-        + `<div class="chg ${dirClass}">${change ? arrow + ' ' + escapeHTML(change) : ''}</div>`
-        + sparkSVG(idx.trend, dirClass, 'idx-spark')
-        + `</div>`;
-    }).join('');
-  }
-
-  function renderHotStocks(list){
-    const rows = document.getElementById('hotstockRows');
-    if(!rows) return;
-    if(!Array.isArray(list) || list.length===0){
-      rows.innerHTML = '<div class="hotstock-row"><div class="name">目前尚無熱門股資料</div></div>';
-      return;
-    }
-    rows.innerHTML = list.map(s=>{
-      const up = isUpFlag(s);
-      const dirClass = up ? 'up' : 'down';
-      const codeNote = [s.code, s.note].filter(Boolean).map(escapeHTML).join('・');
-      const price = s.price ?? '-';
-      const change = s.change ?? s.changeLabel ?? '';
-      return `<div class="hotstock-row">`
-        + `<div class="name">${escapeHTML(s.name)}<span>${codeNote}</span></div>`
-        + `<div class="price">${escapeHTML(price)}</div>`
-        + `<div class="chg ${dirClass}">${escapeHTML(change)}</div>`
-        + `<div class="vol">${escapeHTML(s.volume ?? '-')}</div>`
-        + sparkSVG(s.trend, dirClass, 'spark')
-        + `</div>`;
-    }).join('');
-  }
-
-  function render(data){
-    if(!data) return;
-    renderMeta(data);
-    renderTicker(data.ticker);
-    renderGlobalIndices(data.globalIndices);
-    renderHotStocks(data.hotStocks);
-  }
-
-  // ---------- 監聽 Firebase Realtime Database ----------
-  const marketDataRef = ref(db, 'market-data');
-  onValue(marketDataRef, (snapshot)=>{
-    const data = snapshot.val();
-    if(!data){
-      console.warn('Firebase /market-data 目前沒有資料。');
-      return;
-    }
-    render(data);
-  }, (error)=>{
-    console.error('Firebase onValue 讀取失敗：', error);
-    const dateEl = document.getElementById('metaDate');
-    if(dateEl) dateEl.textContent = '資料讀取失敗';
-  });
-</script>
 
 </body>
 </html>
